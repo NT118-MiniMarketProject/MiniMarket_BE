@@ -27,7 +27,12 @@ app.use(helmet())
 app.use(cors())
 app.use(xss())
 
-// app.use('api/v1', Router)
+app.use(morgan('tiny'))
+app.use(express.json())
+app.use(cookieParser(process.env.JWT_SECRET))
+app.use(fileUpload({ useTempFiles: true }))
+
+app.use('/api/v1', Router)
 
 app.use(notFoundMiddleware)
 app.use(errorHandlerMiddleware)
