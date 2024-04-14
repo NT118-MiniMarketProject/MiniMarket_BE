@@ -6,6 +6,7 @@ const {
     createTokenUser,
     ComparePassword
 } = require('../utils')
+const crypto = require('crypto')
 
 const CreateUser = async({body, res}) => {
     try {
@@ -57,7 +58,35 @@ const loginService = async({body, res}) => {
             throw new CustomError.UnauthenticatedError('Wrong password')
 
         const tokenUser = createTokenUser(user)
-        attachCookiesToResponse({ res, user: tokenUser })
+        // console.log(tokenUser)
+
+        let refresh_token = ''
+
+        const existingToken = await prisma.token.findFirst({
+            where:{
+                user_id: user.id
+            }
+        })
+
+        if(existingToken) {
+            const {isValid} = existingToken;
+            if(!isValid) 
+                throw new CustomError.UnauthenticatedError('Invalid Credentials')
+            refresh_token = existingToken.refresh_token
+            attachCookiesToResponse({res, user: tokenUser, refreshToken: refresh_token})
+            return {user: tokenUser}
+        }
+ 
+        refresh_token = crypto.randomBytes(40).toString('hex');
+
+        await prisma.token.create({
+            data: {
+                refresh_token,
+                user_id: user.id
+            }
+        })
+
+        attachCookiesToResponse({ res, user: tokenUser, refreshToken: refresh_token })
 
         return {user: tokenUser}
     } catch(err) {
@@ -65,8 +94,63 @@ const loginService = async({body, res}) => {
     }
 }
 
+const getUserById = async (userId) => {
+    try {
+        const user = await prisma.user.findUnique({where: {id: userId}})
+        return {user: user}
+    } catch(err) {
+        throw err
+    }
+}
+
+
+const updateUserById = async (userId, dataUpdateFromRequest) => {
+    try {
+        const dataUpdate = {}
+        dataUpdate.refreshToken = dataUpdateFromRequest.refreshToken ?? dataUpdateFromRequest.refreshToken;
+
+        const userUpdate = await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: dataUpdate
+        });
+
+        return {userUpdate: userUpdate}
+    } catch(err) {
+        throw err
+    }
+}
+
+const logout = async (user, res) => {
+    try {
+        await prisma.token.deleteMany({
+                where: {
+                    user_id: user.userId
+                }
+            })
+
+        res.cookie('accessToken', 'logout', {
+                httpOnly: true,
+                expires: new Date(Date.now()),
+        })
+
+        res.cookie('refreshToken', 'logout', {
+                httpOnly: true,
+                expires: new Date(Date.now()),
+        })
+
+        return {msg: 'user logged out!'}
+    } catch (err) {
+        throw err
+    }
+}
+
 
 module.exports = {
     CreateUser,
-    loginService
+    loginService,
+    getUserById,
+    updateUserById,
+    logout
 }

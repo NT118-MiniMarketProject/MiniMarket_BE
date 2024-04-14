@@ -32,6 +32,7 @@ model User {
 model Token {
   refresh_token String @unique
   user_id String
+  isValid Boolean @default(true)
   //foreign_key
   userToken User @relation(fields: [user_id], references: [id])
 }
