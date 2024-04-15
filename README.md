@@ -11,5 +11,5 @@ B4. Create .env and add necessary variables
 
 B5. To run backend, in your terminal run this:
 ```bash
-yarn start:dev
+yarn run dev
 ```
