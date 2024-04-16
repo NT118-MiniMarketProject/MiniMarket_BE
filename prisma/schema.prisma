@@ -13,7 +13,7 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
+  id String @id @default(uuid()) @unique
   name String?
   email String @unique
   phone String @unique
@@ -40,4 +40,57 @@ model Token {
 enum UserType {
   admin
   customer
+}
+
+model Product {
+  product_id String @id @default(uuid()) @unique
+  thumbnail String?
+  name String 
+  reg_price Float
+  discount_percent Int?
+  discount_price Float?
+  unit String
+  canonical String?
+  description String?
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @updatedAt 
+  deleted Boolean @default(false)
+  rating Decimal?
+  category Category @relation(fields: [c_id], references: [category_id])
+  c_id String 
+  brand Brand @relation(fields: [br_id], references: [brand_id])
+  br_id String
+  gallery_id Gallery[]
+}
+
+model Category { 
+  category_id String @id @default(uuid()) @unique
+  products Product[]
+  description String?
+  thumbnail_category String?
+  product_quantity Int
+  category_group Category_Group @relation(fields: [categroup_id], references: [categroup_id])
+  categroup_id Int 
+
+}
+
+model Brand {
+  brand_id String @id @default(uuid()) @unique
+  brand_name String 
+  products Product[]
+  thumbnail_brand String?
+}
+
+model Gallery {
+  gallery_id Int @id @default(autoincrement())
+  thumbnail_gallery String?
+  prod_gall_id String
+  product Product @relation(fields: [prod_gall_id], references: [product_id])
+}
+
+model Category_Group {
+  categroup_id Int @id @default(autoincrement())
+  categroup_name String
+  thumbnail String?
+  category Category[]
 }
