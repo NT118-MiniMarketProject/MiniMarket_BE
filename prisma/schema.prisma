@@ -27,6 +27,9 @@ model User {
   is_enable Int?
 
   token Token[]
+  wishlist Wishlist[]
+  order Order[]
+  cart Cart[]
 }
 
 model Token {
@@ -60,7 +63,11 @@ model Product {
   c_id String 
   brand Brand @relation(fields: [br_id], references: [brand_id])
   br_id String
+
   gallery_id Gallery[]
+  wishlist_id Wishlist[]
+  orderitem OrderItem[]
+  cartItem CartItem[]
 }
 
 model Category { 
@@ -93,4 +100,71 @@ model Category_Group {
   categroup_name String
   thumbnail String?
   category Category[]
+}
+
+model Wishlist {
+  wishlist_id Int @id @default(autoincrement())
+  product_id String
+  product Product @relation(fields: [product_id], references: [product_id])
+  user_id String
+  user User @relation(fields: [user_id], references: [id])
+}
+
+enum OrderType {
+  Pending
+  Processing
+  Shipped
+  Delivered
+  Cancelled
+}
+
+enum PaymentType {
+  Cash
+  VNPAY
+  MOMO
+}
+
+model Order {
+  order_id String @id @default(uuid()) @unique
+  address String
+  total Float
+  note String?
+  status OrderType @default(Pending)
+  payment_method PaymentType @default(Cash)
+  created_at    DateTime? @default(now())
+  updated_at    DateTime? @updatedAt 
+  user_id String
+  user User @relation(fields: [user_id], references: [id])
+  orderitem OrderItem[]
+}
+
+model OrderItem {
+  orderitem_id Int @id @default(autoincrement())
+  price Float
+  quantity Int
+  total Float
+  order_id String
+  order Order @relation(fields: [order_id], references: [order_id])
+  product_id String
+  product Product @relation(fields: [product_id], references: [product_id])
+}
+
+model Cart {
+  cart_id String  @id @default(uuid()) @unique
+  quantity Int
+  total Float
+  saved Float?
+  user_id String
+  user User @relation(fields: [user_id], references: [id])
+  cartItem CartItem[]
+}
+
+model CartItem {
+  cartItem Int  @id @default(autoincrement())
+  quantity Int
+  total Float
+  cart_id String
+  cart Cart @relation(fields: [cart_id], references: [cart_id])
+  product_id String
+  product Product @relation(fields: [product_id], references: [product_id])
 }
