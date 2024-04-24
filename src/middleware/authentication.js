@@ -5,8 +5,8 @@ const {isTokenValid,attachCookiesToResponse} = require('../utils')
 const authenticateUser = async(req, res, next) => {
 
     const {refreshToken, accessToken} = req.signedCookies
-    console.log(refreshToken)
-    console.log(accessToken)
+    // console.log(refreshToken)
+    // console.log(accessToken)
 
     if(!refreshToken || !accessToken) {
         throw new CustomError.BadRequestError(`Can't logout now`);
@@ -49,6 +49,18 @@ const authenticateUser = async(req, res, next) => {
     }
 }
 
+const authorizPermissions = (...roles) => {
+    return (req, res, next) => {
+        if(!roles.includes(req.user.role)) {
+            throw new CustomError.UnauthenticatedError(
+                'Unauthorized to access this route'
+            );
+        }
+        next();
+    }
+}
+
 module.exports = {
-    authenticateUser
+    authenticateUser,
+    authorizPermissions
 }
