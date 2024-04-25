@@ -64,10 +64,10 @@ model Product {
   brand Brand @relation(fields: [br_id], references: [brand_id])
   br_id String
 
-  gallery_id Gallery[]
+  galleries Gallery[]
   wishlist_id Wishlist[]
-  orderitem OrderItem[]
-  cartItem CartItem[]
+  orderitems OrderItem[]
+  cartItems CartItem[]
 }
 
 model Category { 
@@ -75,9 +75,8 @@ model Category {
   products Product[]
   category_name String?
   thumbnail_category String?
-  category_group Category_Group @relation(fields: [categroup_id], references: [categroup_id])
-  categroup_id Int 
-
+  category_group Category_Group @relation(fields: [categroup], references: [categroup_id])
+  categroup Int 
 }
 
 model Brand {
@@ -98,7 +97,7 @@ model Category_Group {
   categroup_id Int @id @default(autoincrement())
   categroup_name String
   thumbnail String?
-  category Category[]
+  categories Category[]
 }
 
 model Wishlist {
@@ -134,7 +133,7 @@ model Order {
   updated_at    DateTime? @updatedAt 
   user_id String
   user User @relation(fields: [user_id], references: [id])
-  orderitem OrderItem[]
+  orderitems OrderItem[]
 }
 
 model OrderItem {
@@ -144,8 +143,8 @@ model OrderItem {
   total Float
   order_id String
   order Order @relation(fields: [order_id], references: [order_id])
-  product_id String
-  product Product @relation(fields: [product_id], references: [product_id])
+  product String
+  products Product @relation(fields: [product], references: [product_id])
 }
 
 model Cart {
@@ -155,15 +154,15 @@ model Cart {
   saved Float?
   user_id String
   user User @relation(fields: [user_id], references: [id])
-  cartItem CartItem[]
+  cartItems CartItem[]
 }
 
 model CartItem {
   cartItem Int  @id @default(autoincrement())
   quantity Int
   total Float
-  cart_id String
-  cart Cart @relation(fields: [cart_id], references: [cart_id])
-  product_id String
-  product Product @relation(fields: [product_id], references: [product_id])
+  cartUser String
+  cart Cart @relation(fields: [cartUser], references: [cart_id])
+  product String
+  products Product @relation(fields: [product], references: [product_id])
 }
