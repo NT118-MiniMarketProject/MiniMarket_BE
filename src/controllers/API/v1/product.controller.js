@@ -4,8 +4,8 @@ const ProductService = require('../../../services/API/v1/product.service')
 const addWishList = async (req, res, next) => {
     try {
         const body = req.body
-        
-        const {list} = await ProductService.addToWishList({body, req, res})
+        const user = req.user 
+        const {list} = await ProductService.addToWishList({body, user})
         res.status(StatusCodes.OK).json({Wishlist: list})
     }
     catch (err) {
@@ -16,8 +16,8 @@ const addWishList = async (req, res, next) => {
 const removeWishList = async (req, res, next) => {
     try {
         const body = req.body
-
-        const {list} = await ProductService.removeFromWishList({body, req, res})
+        const user = req.user
+        const {list} = await ProductService.removeFromWishList({body, user})
         res.status(StatusCodes.OK).json({Wishlist: list})
     }
     catch (err) {
