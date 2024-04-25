@@ -73,9 +73,8 @@ model Product {
 model Category { 
   category_id String @id @default(uuid()) @unique
   products Product[]
-  description String?
+  category_name String?
   thumbnail_category String?
-  product_quantity Int
   category_group Category_Group @relation(fields: [categroup_id], references: [categroup_id])
   categroup_id Int 
 
