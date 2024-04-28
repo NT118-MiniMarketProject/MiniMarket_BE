@@ -9,7 +9,7 @@ const authenticateUser = async(req, res, next) => {
     // console.log(accessToken)
 
     if(!refreshToken || !accessToken) {
-        throw new CustomError.BadRequestError(`Can't logout now`);
+        return new CustomError.BadRequestError(`Can't logout now`);
     }
 
     try {
@@ -49,7 +49,7 @@ const authenticateUser = async(req, res, next) => {
     }
 }
 
-const authorizPermissions = (...roles) => {
+const authorizePermissions = (...roles) => {
     return (req, res, next) => {
         if(!roles.includes(req.user.role)) {
             throw new CustomError.UnauthenticatedError(
@@ -62,5 +62,5 @@ const authorizPermissions = (...roles) => {
 
 module.exports = {
     authenticateUser,
-    authorizPermissions
+    authorizePermissions
 }
