@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,99 +8,141 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid()) @unique
-  name String?
-  email String @unique
-  phone String @unique
-  address String? 
-  avater String? 
-  password String
-  created_at    DateTime? @default(now())
-  updated_at    DateTime? @updatedAt 
-  deleted_at DateTime? 
-  role UserType
-  is_enable Int?
-
-  token Token[]
-  wishlist Wishlist[]
-  order Order[]
-  cart Cart[]
+  id         String     @id @unique @default(uuid())
+  name       String?
+  email      String     @unique
+  phone      String     @unique
+  address    String?
+  avater     String?
+  password   String
+  created_at DateTime?  @default(now())
+  updated_at DateTime?  @updatedAt
+  deleted_at DateTime?
+  role       UserType
+  is_enable  Int?
+  cart       Cart[]
+  order      Order[]
+  token      Token[]
+  wishlist   Wishlist[]
 }
 
 model Token {
-  refresh_token String @unique
-  user_id String
-  isValid Boolean @default(true)
-  //foreign_key
-  userToken User @relation(fields: [user_id], references: [id])
+  refresh_token String  @unique
+  user_id       String
+  isValid       Boolean @default(true)
+  userToken     User    @relation(fields: [user_id], references: [id])
+}
+
+model Product {
+  product_id       String      @id @unique @default(uuid())
+  thumbnail        String?
+  name             String
+  reg_price        Float
+  discount_percent Int?
+  discount_price   Float?
+  unit             String
+  canonical        String?
+  description      String?
+  created_at       DateTime?   @default(now())
+  updated_at       DateTime?   @updatedAt
+  deleted          Boolean     @default(false)
+  rating           Decimal?
+  c_id             String
+  br_id            String
+  cartItems        CartItem[]
+  galleries        Gallery[]
+  orderitems       OrderItem[]
+  brand            Brand       @relation(fields: [br_id], references: [brand_id])
+  category         Category    @relation(fields: [c_id], references: [category_id])
+  wishlist_id      Wishlist[]
+}
+
+model Category {
+  category_id        String         @id @unique @default(uuid())
+  thumbnail_category String?
+  categroup          Int
+  category_name      String?
+  category_group     Category_Group @relation(fields: [categroup], references: [categroup_id])
+  products           Product[]
+}
+
+model Brand {
+  brand_id        String    @id @unique @default(uuid())
+  brand_name      String
+  thumbnail_brand String?
+  products        Product[]
+}
+
+model Gallery {
+  gallery_id        Int     @id @default(autoincrement())
+  thumbnail_gallery String?
+  prod_gall_id      String
+  product           Product @relation(fields: [prod_gall_id], references: [product_id])
+}
+
+model Category_Group {
+  categroup_id   Int        @id @default(autoincrement())
+  categroup_name String
+  thumbnail      String?
+  categories     Category[]
+}
+
+model Wishlist {
+  wishlist_id Int     @id @default(autoincrement())
+  product_id  String
+  user_id     String
+  product     Product @relation(fields: [product_id], references: [product_id])
+  user        User    @relation(fields: [user_id], references: [id])
+}
+
+model Order {
+  order_id       String      @id @unique @default(uuid())
+  address        String
+  total          Float
+  note           String?
+  status         OrderType   @default(Pending)
+  payment_method PaymentType @default(Cash)
+  created_at     DateTime?   @default(now())
+  updated_at     DateTime?   @updatedAt
+  user_id        String
+  user           User        @relation(fields: [user_id], references: [id])
+  orderitems     OrderItem[]
+}
+
+model OrderItem {
+  orderitem_id Int     @id @default(autoincrement())
+  price        Float
+  quantity     Int
+  total        Float
+  order_id     String
+  product      String
+  order        Order   @relation(fields: [order_id], references: [order_id])
+  products     Product @relation(fields: [product], references: [product_id])
+}
+
+model Cart {
+  cart_id   String     @id @unique @default(uuid())
+  quantity  Int
+  total     Float
+  saved     Float?
+  user_id   String
+  user      User       @relation(fields: [user_id], references: [id])
+  cartItems CartItem[]
+}
+
+model CartItem {
+  cartItem Int     @id @default(autoincrement())
+  quantity Int
+  total    Float
+  cartUser String
+  product  String
+  cart     Cart    @relation(fields: [cartUser], references: [cart_id])
+  products Product @relation(fields: [product], references: [product_id])
 }
 
 enum UserType {
   admin
   customer
-}
-
-model Product {
-  product_id String @id @default(uuid()) @unique
-  thumbnail String?
-  name String 
-  reg_price Float
-  discount_percent Int?
-  discount_price Float?
-  unit String
-  canonical String?
-  description String?
-  created_at    DateTime? @default(now())
-  updated_at    DateTime? @updatedAt 
-  deleted Boolean @default(false)
-  rating Decimal?
-  category Category @relation(fields: [c_id], references: [category_id])
-  c_id String 
-  brand Brand @relation(fields: [br_id], references: [brand_id])
-  br_id String
-
-  galleries Gallery[]
-  wishlist_id Wishlist[]
-  orderitems OrderItem[]
-  cartItems CartItem[]
-}
-
-model Category { 
-  category_id String @id @default(uuid()) @unique
-  products Product[]
-  category_name String?
-  thumbnail_category String?
-  category_group Category_Group @relation(fields: [categroup], references: [categroup_id])
-  categroup Int 
-}
-
-model Brand {
-  brand_id String @id @default(uuid()) @unique
-  brand_name String 
-  products Product[]
-  thumbnail_brand String?
-}
-
-model Gallery {
-  gallery_id Int @id @default(autoincrement())
-  thumbnail_gallery String?
-  prod_gall_id String
-  product Product @relation(fields: [prod_gall_id], references: [product_id])
-}
-
-model Category_Group {
-  categroup_id Int @id @default(autoincrement())
-  categroup_name String
-  thumbnail String?
-  categories Category[]
-}
-
-model Wishlist {
-  wishlist_id Int @id @default(autoincrement())
-  product_id String
-  product Product @relation(fields: [product_id], references: [product_id])
-  user_id String
-  user User @relation(fields: [user_id], references: [id])
 }
 
 enum OrderType {
@@ -120,49 +157,4 @@ enum PaymentType {
   Cash
   VNPAY
   MOMO
-}
-
-model Order {
-  order_id String @id @default(uuid()) @unique
-  address String
-  total Float
-  note String?
-  status OrderType @default(Pending)
-  payment_method PaymentType @default(Cash)
-  created_at    DateTime? @default(now())
-  updated_at    DateTime? @updatedAt 
-  user_id String
-  user User @relation(fields: [user_id], references: [id])
-  orderitems OrderItem[]
-}
-
-model OrderItem {
-  orderitem_id Int @id @default(autoincrement())
-  price Float
-  quantity Int
-  total Float
-  order_id String
-  order Order @relation(fields: [order_id], references: [order_id])
-  product String
-  products Product @relation(fields: [product], references: [product_id])
-}
-
-model Cart {
-  cart_id String  @id @default(uuid()) @unique
-  quantity Int
-  total Float
-  saved Float?
-  user_id String
-  user User @relation(fields: [user_id], references: [id])
-  cartItems CartItem[]
-}
-
-model CartItem {
-  cartItem Int  @id @default(autoincrement())
-  quantity Int
-  total Float
-  cartUser String
-  cart Cart @relation(fields: [cartUser], references: [cart_id])
-  product String
-  products Product @relation(fields: [product], references: [product_id])
 }
