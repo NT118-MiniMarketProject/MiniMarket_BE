@@ -56,9 +56,9 @@ CREATE TABLE "Product" (
 -- CreateTable
 CREATE TABLE "Category" (
     "category_id" TEXT NOT NULL,
-    "category_name" TEXT,
     "thumbnail_category" TEXT,
     "categroup" INTEGER NOT NULL,
+    "category_name" TEXT,
 
     CONSTRAINT "Category_pkey" PRIMARY KEY ("category_id")
 );
@@ -179,10 +179,10 @@ CREATE UNIQUE INDEX "Cart_cart_id_key" ON "Cart"("cart_id");
 ALTER TABLE "Token" ADD CONSTRAINT "Token_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_c_id_fkey" FOREIGN KEY ("c_id") REFERENCES "Category"("category_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Product" ADD CONSTRAINT "Product_br_id_fkey" FOREIGN KEY ("br_id") REFERENCES "Brand"("brand_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Product" ADD CONSTRAINT "Product_br_id_fkey" FOREIGN KEY ("br_id") REFERENCES "Brand"("brand_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Product" ADD CONSTRAINT "Product_c_id_fkey" FOREIGN KEY ("c_id") REFERENCES "Category"("category_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Category" ADD CONSTRAINT "Category_categroup_fkey" FOREIGN KEY ("categroup") REFERENCES "Category_Group"("categroup_id") ON DELETE RESTRICT ON UPDATE CASCADE;
