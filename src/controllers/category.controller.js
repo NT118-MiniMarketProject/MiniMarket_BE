@@ -1,6 +1,6 @@
-const categoryService = require('../../../services/API/v1/category.service')
+const categoryService = require('../services/category.service')
 const {StatusCodes} = require('http-status-codes')
-const CustomError = require('../../../errors')
+const CustomError = require('../errors')
 
 const GetAllCategory = async (req, res, next) => {
     try {

@@ -4,7 +4,7 @@ const {
     GetAllCategory,
     CreateCategory,
     CreateCategoryGroup
-} = require('../controllers/API/v1/category.controller')
+} = require('../controllers/category.controller')
 
 const {
      authenticateUser,

@@ -1,5 +1,5 @@
-const prisma = require('../../../config/prisma.instance');
-const CustomError = require('../../../errors')
+const prisma = require('../config/prisma.instance');
+const CustomError = require('../errors')
 const addToWishList = async ({body, user}) => {
     try {
         const {product_id} = body

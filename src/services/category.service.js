@@ -1,9 +1,9 @@
-const prisma = require('../../../config/prisma.instance')
-const CustomError = require('../../../errors')
+const prisma = require('../config/prisma.instance')
+const CustomError = require('../errors')
 
 const GetAllService = async() => {
     try {
-        const categories = await prisma.category.findMany({})
+        const categories = await prisma.category.findMany()
         return {categories: categories}
     } catch (err) {
         throw err

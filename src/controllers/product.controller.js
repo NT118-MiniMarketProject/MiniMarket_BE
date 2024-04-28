@@ -1,5 +1,5 @@
 const {StatusCodes} = require('http-status-codes')
-const ProductService = require('../../../services/API/v1/product.service')
+const ProductService = require('../services/product.service')
 
 const addWishList = async (req, res, next) => {
     try {
