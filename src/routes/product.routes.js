@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const {addWishList, removeWishList} = require('../controllers/API/v1/product.controller')
+const {addWishList, removeWishList} = require('../controllers/product.controller')
 const  {
     authenticateUser
 } = require('../middleware/authentication')
