@@ -8,14 +8,14 @@ const {
 
 const {
      authenticateUser,
-    authorizPermissions
+    authorizePermissions
 } = require('../middleware/authentication');
 
 router.route('/')
       .get(GetAllCategory)
-      .post([authenticateUser, authorizPermissions('admin')], CreateCategory)
+      .post([authenticateUser, authorizePermissions('admin')], CreateCategory)
 
-router.route('/group').post([authenticateUser, authorizPermissions('admin')], CreateCategoryGroup)
+router.route('/group').post([authenticateUser, authorizePermissions('admin')], CreateCategoryGroup)
 
 
 module.exports = router
