@@ -1,4 +1,4 @@
-const {prisma} = require('../config/prisma.instance')
+const prisma = require('../config/prisma.instance')
 const CustomError = require('../errors')
 const {
     passwordHash,  

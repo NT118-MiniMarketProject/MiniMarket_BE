@@ -50,4 +50,4 @@ if (logging) {
   logQuery(prisma);
 }
 
-module.exports = { prisma };
+module.exports = prisma
