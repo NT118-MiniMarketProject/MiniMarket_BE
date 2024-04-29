@@ -24,6 +24,7 @@ model User {
   order      Order[]
   token      Token[]
   wishlist   Wishlist[]
+  reviews    Reviews[]
 }
 
 model Token {
@@ -55,6 +56,8 @@ model Product {
   brand            Brand       @relation(fields: [br_id], references: [brand_id])
   category         Category    @relation(fields: [c_id], references: [category_id])
   wishlist_id      Wishlist[]
+  reviews          Reviews[]
+  saleItems        SaleItem[]
 }
 
 model Category {
@@ -116,6 +119,7 @@ model OrderItem {
   total        Float
   order_id     String
   product      String
+  fromEvent    Int?
   order        Order   @relation(fields: [order_id], references: [order_id])
   products     Product @relation(fields: [product], references: [product_id])
 }
@@ -138,6 +142,53 @@ model CartItem {
   product  String
   cart     Cart    @relation(fields: [cartUser], references: [cart_id])
   products Product @relation(fields: [product], references: [product_id])
+  saving   Float?
+}
+
+model Feedbacks {
+  feedbackId Int       @id @default(autoincrement())
+  name_fb    String    @default("NULL")
+  email_fb   String    @default("NULL")
+  phone_fb   String    @default("NULL")
+  subject    String    @default("NULL")
+  message    String    @default("NULL")
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  deleted_at DateTime?
+}
+
+model Reviews {
+  reviewId   Int       @id @default(autoincrement())
+  rating     Decimal
+  title      String
+  comment    String?
+  created_at DateTime? @default(now())
+  updated_at DateTime? @updatedAt
+  deleted_at DateTime?
+  userId     String
+  productId  String
+  user       User      @relation(fields: [userId], references: [id])
+  product    Product   @relation(fields: [productId], references: [product_id])
+}
+
+model SaleEvent {
+  saleEventId Int        @id @default(autoincrement())
+  nameEvent   String
+  description String
+  startTime   DateTime
+  endTime     DateTime
+  is_visible  Decimal    @default(1)
+  saleItem    SaleItem[]
+}
+
+model SaleItem {
+  saleItemId  Int       @id @default(autoincrement())
+  productId   String
+  products    Product   @relation(fields: [productId], references: [product_id])
+  saleEventId Int
+  saleEvent   SaleEvent @relation(fields: [saleEventId], references: [saleEventId])
+  quantity    Int?
+  remain      Int?      @default(0)
 }
 
 enum UserType {
