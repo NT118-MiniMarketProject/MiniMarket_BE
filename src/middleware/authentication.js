@@ -7,11 +7,6 @@ const authenticateUser = async(req, res, next) => {
     const {refreshToken, accessToken} = req.signedCookies
     // console.log(refreshToken)
     // console.log(accessToken)
-
-    if(!refreshToken || !accessToken) {
-        return new CustomError.BadRequestError(`Can't logout now`);
-    }
-
     try {
         if(accessToken) {
             const payload = isTokenValid(accessToken)
@@ -45,7 +40,8 @@ const authenticateUser = async(req, res, next) => {
         }
         next()
     } catch(err) {
-        console.log(err)
+        // throw new CustomError.UnauthenticatedError('Authentication Invalid');
+        next(new CustomError.UnauthenticatedError('Vui lòng đăng nhập'))
     }
 }
 
