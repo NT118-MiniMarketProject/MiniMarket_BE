@@ -61,9 +61,9 @@ const removeFromWishList = async ({body, user}) => {
     }
 }
 
-const retrieveFromWishList = async (userId) => {
+const retrieveFromWishList = async ({userId}) => {
     try {
-        const wishlistProducts = await prisma.wishlist.findMany({
+        const wishlist = await prisma.wishlist.findMany({
             where: {
                 user_id: userId
             },
@@ -71,7 +71,7 @@ const retrieveFromWishList = async (userId) => {
                 product: true
             }
         });
-        return wishlistProducts;
+        return {list: wishlist};
     }
     catch (err) {
         throw err;
@@ -80,5 +80,6 @@ const retrieveFromWishList = async (userId) => {
 
 module.exports = {
     addToWishList,
-    removeFromWishList
+    removeFromWishList,
+    retrieveFromWishList
 }

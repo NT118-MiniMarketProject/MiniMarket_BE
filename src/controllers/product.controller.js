@@ -25,6 +25,17 @@ const removeWishList = async (req, res, next) => {
     }
 }
 
+const getProductsInWishList = async (req, res, next) => {
+    try {
+        const user = req.user
+        const {list} = await ProductService.retrieveFromWishList(user.userId)
+        res.status(StatusCodes.OK).json({Wishlist: list})
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
 const GetAllProducts = async (req, res, next) => {
     try {
         const query = req.query
@@ -36,5 +47,6 @@ const GetAllProducts = async (req, res, next) => {
 
 module.exports = {
     addWishList,
-    removeWishList
+    removeWishList,
+    getProductsInWishList
 }
