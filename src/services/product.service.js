@@ -26,7 +26,7 @@ const addToWishList = async ({body, user}) => {
         })
 
         const wishlistProducts = await retrieveFromWishList(user.userId)
-        return {list: wishlistProducts};
+        return wishlistProducts;
     }
     catch (err) {
         throw err;
@@ -54,7 +54,7 @@ const removeFromWishList = async ({body, user}) => {
         });
 
         const wishlistProducts = await retrieveFromWishList(user.userId)
-        return {list: wishlistProducts};
+        return wishlistProducts;
     }
     catch (err) {
         throw err;
@@ -63,13 +63,23 @@ const removeFromWishList = async ({body, user}) => {
 
 const retrieveFromWishList = async ({userId}) => {
     try {
-        const wishlist = await prisma.wishlist.findMany({
+        const getValues = await prisma.wishlist.findMany({
             where: {
                 user_id: userId
             },
             include: {
                 product: true
             }
+        });
+        const wishlist = getValues.map(item => {
+            const { product_id, thumbnail, name, product } = item;
+            const tmp = {
+                product_id,
+                thumbnail: product.thumbnail,
+                name: product.name,
+                ...(product.discount_percent > 0 ? { discount_price: product.discount_price } : { reg_price: product.reg_price })
+            };
+            return tmp;
         });
         return {list: wishlist};
     }
