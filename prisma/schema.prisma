@@ -41,6 +41,7 @@ model Product {
   reg_price        Float
   discount_percent Int?
   discount_price   Float?
+  quantity         Int?
   unit             String
   canonical        String?
   description      String?
@@ -50,6 +51,8 @@ model Product {
   rating           Decimal?
   c_id             String
   br_id            String
+  event_percent    Int?
+  event_price      Int?
   cartItems        CartItem[]
   galleries        Gallery[]
   orderitems       OrderItem[]
