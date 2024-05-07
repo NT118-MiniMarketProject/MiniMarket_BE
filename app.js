@@ -32,9 +32,9 @@ app.use(express.json())
 app.use(cookieParser(process.env.JWT_SECRET))
 app.use(fileUpload({ useTempFiles: true }))
 
-app.get('/', (req, res) => {
-  res.send('e-commerce api')
-})
+// app.get('/', (req, res) => {
+//   res.send('e-commerce api')
+// })
 
 app.use('/api/v1', Router)
 
