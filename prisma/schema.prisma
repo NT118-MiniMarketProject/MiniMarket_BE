@@ -53,6 +53,8 @@ model Product {
   br_id            String
   event_percent    Int?
   event_price      Int?
+  is_visible       Decimal?
+  is_feature       Decimal?
   cartItems        CartItem[]
   galleries        Gallery[]
   orderitems       OrderItem[]
@@ -83,6 +85,7 @@ model Gallery {
   gallery_id        Int     @id @default(autoincrement())
   thumbnail_gallery String?
   prod_gall_id      String
+  sort              Int?
   product           Product @relation(fields: [prod_gall_id], references: [product_id])
 }
 
