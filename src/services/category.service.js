@@ -16,7 +16,7 @@ const getCategoryByIdService = async({category_id}) => {
     try {
         const category = await prisma.category.findFirst({
             where: {
-                categroup: category_id
+                category_id: category_id
             }
         })
         return {category: category}
@@ -33,6 +33,21 @@ const getCategoryGroupByIdService = async ({categorygroup}) => {
             }
         })
         return {categoryGroup: CategoryGroup}
+    } catch (err) {
+        throw err
+    }
+}
+
+const getCategoryListByCategoryGroupService = async({categroupId}) => {
+    try {
+        const categoryList = await prisma.category.findMany({
+            where: {
+                category_group: {
+                    categroup_id: categroupId
+                }
+            }
+        });
+        return {categoryList: categoryList};
     } catch (err) {
         throw err
     }
@@ -116,51 +131,45 @@ const GetAllCateGroupService = async() => {
     }
 }
 
-const CategoryByCateGroupService = async() => {
+const CategoryByCateGroupService = async({ categroupId }) => {
     try {
-        const categoryByGroup = await prisma.category_Group.findMany({
-            include: {
-                categories: {
-                    take: 10
-                }
-            }
-        });
+        let categoryByGroup;
+        if(categroupId) {
+            const {categoryGroup} = await getCategoryGroupByIdService({categorygroup: categroupId});
+            if(!categoryGroup) 
+                throw new CustomError.NotFoundError(`Not found category group`);
 
-        const modifiedCategoryByGroup = helper.modifyCategoryByGroup(categoryByGroup)
+            categoryByGroup = await prisma.category_Group.findMany({
+                where: {
+                    categroup_id: categroupId
+                },
+                include: {
+                    categories: true
+                }
+            });
+        } else {
+            categoryByGroup = await prisma.category_Group.findMany({
+                include: {
+                    categories: {
+                        take: 10
+                    }
+                }
+            });
+        }
+        const modifiedCategoryByGroup = helper.modifyCategoryByGroup(categoryByGroup);
         return { categoryByGroup: modifiedCategoryByGroup };
     } catch (err) {
         throw err
     }
 }
 
-const GetCategoryGroupByIdService = async ({ categroupId }) => {
-    try {
-        const categoryByGroup = await prisma.category_Group.findMany({
-            where: {
-                categroup_id: categroupId
-            },
-            include: {
-                categories: true
-            }
-        });
-        const modifiedCategoryByGroup = helper.modifyCategoryByGroup(categoryByGroup);
-        return { categoryByGroup: modifiedCategoryByGroup };
-    } catch (err) {
-        throw err;
-    }
-};
-
-
 module.exports = {
     GetAllCategoryService, 
-    getCategoryByIdService,
     createCategorService, 
     getCategoryGroupByIdService,
-    createCategorGroupService,
-    getNameCategoryService,
-    getNameGroupService,
+    getCategoryByIdService,
     createCategorGroupService,
     GetAllCateGroupService,
     CategoryByCateGroupService,
-    GetCategoryGroupByIdService
+    getCategoryListByCategoryGroupService
 }

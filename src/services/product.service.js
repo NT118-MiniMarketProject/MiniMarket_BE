@@ -1,17 +1,56 @@
 const prisma = require('../config/prisma.instance');
 const CustomError = require('../errors')
-const addToWishList = async ({body, user}) => {
-    try {
-        const {product_id} = body
 
-        const validProduct = await prisma.product.findUnique({where: {product_id}})
-        const validProductInWishList = await prisma.wishlist.findFirst({
+
+//Common
+const GetProductById = async({product_id}) => {
+    try {
+        const product = await prisma.product.findUnique({
             where: {
-                user_id: user.userId,
                 product_id: product_id
             }
         })
-        if (!validProduct) {
+        return {product: product}
+    } catch (err) {
+        throw err
+    }
+}
+
+//function used for brand
+const GetProductsByCategoryList = async({categoryList}) => {
+    try {
+        const productList = await prisma.product.findMany({
+            where: {
+                category: {
+                    category_id: {
+                        in: categoryList.map(ele => ele.category_id)
+                    }
+                }
+            }
+        });
+        return {productList: productList};
+    } catch (err) {
+        throw err;
+    }
+}
+
+//wishlist
+const checkWishList = async({product_id, user}) => {
+    const validProductInWishList = await prisma.wishlist.findFirst({
+        where: {
+            user_id: user.userId,
+            product_id: product_id
+        }
+    })
+    return {validProductInWishList: validProductInWishList}
+}
+
+const addToWishList = async ({product_id, user}) => {
+    try {
+        const {product} = await GetProductById({product_id})
+        const {validProductInWishList} = await checkWishList({product_id, user})
+
+        if (!product) {
             throw new CustomError.BadRequestError(`This product does not exist`)
         }
         if (validProductInWishList)
@@ -33,15 +72,9 @@ const addToWishList = async ({body, user}) => {
     }
 }
 
-const removeFromWishList = async ({body, user}) => {
+const removeFromWishList = async ({product_id, user}) => {
     try {
-        const {product_id} = body
-        const validProductInWishList = await prisma.wishlist.findFirst({
-            where: {
-                user_id: user.userId,
-                product_id: product_id
-            }
-        })
+        const {validProductInWishList} = await checkWishList({product_id, user})
         if (!validProductInWishList)
         {
             throw new CustomError.BadRequestError(`This product does not exist in your wishlist`)
@@ -91,5 +124,6 @@ const retrieveFromWishList = async ({userId}) => {
 module.exports = {
     addToWishList,
     removeFromWishList,
-    retrieveFromWishList
+    retrieveFromWishList,
+    GetProductsByCategoryList
 }

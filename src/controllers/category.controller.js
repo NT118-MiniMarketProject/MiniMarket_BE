@@ -15,9 +15,6 @@ const CreateCategory = async (req, res, next) => {
     try {
         
         const body = req.body
-
-        // console.log(body.categroup)
-
         const {categoryGroup} = await categoryService.getCategoryGroupByIdService({categorygroup: body.categroup})
 
         if(!categoryGroup) {
@@ -53,7 +50,7 @@ const GetAllCategoryGroups = async (req, res, next) => {
 
 const GetCategoryByCategoryGroupAll = async (req, res, next) => {
     try {
-        const {categoryByGroup} = await categoryService.CategoryByCateGroupService();
+        const {categoryByGroup} = await categoryService.CategoryByCateGroupService({categroupId:null});
         res.status(StatusCodes.OK).json({categoryByGroup});
     } catch (err) {
         next(err)
@@ -63,7 +60,7 @@ const GetCategoryByCategoryGroupAll = async (req, res, next) => {
 const GetCategoryGroupById = async (req, res, next) => {
     try {
         const categroupId = parseInt(req.params.id, 10);
-        const {categoryByGroup} = await categoryService.GetCategoryGroupByIdService({categroupId});
+        const {categoryByGroup} = await categoryService.CategoryByCateGroupService({categroupId});
         res.status(StatusCodes.OK).json({categoryByGroup});
     } catch (err) {
         next(err)
