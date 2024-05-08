@@ -1,7 +1,9 @@
 const prisma = require('../config/prisma.instance')
 const CustomError = require('../errors')
+const helper = require('../helper')
 
-const GetAllService = async() => {
+
+const GetAllCategoryService = async() => {
     try {
         const categories = await prisma.category.findMany()
         return {categories: categories}
@@ -25,7 +27,6 @@ const getCategoryByIdService = async({category_id}) => {
 
 const getCategoryGroupByIdService = async ({categorygroup}) => {
     try {
-        // console.log(1)
         const CategoryGroup = await prisma.category_Group.findUnique({
             where: {
                 categroup_id: categorygroup
@@ -106,13 +107,60 @@ const createCategorGroupService = async({body}) => {
     }
 }
 
+const GetAllCateGroupService = async() => {
+    try {
+        const categroup = await prisma.category_Group.findMany();
+        return {categroup: categroup}
+    } catch (err) {
+        throw err
+    }
+}
+
+const CategoryByCateGroupService = async() => {
+    try {
+        const categoryByGroup = await prisma.category_Group.findMany({
+            include: {
+                categories: {
+                    take: 10
+                }
+            }
+        });
+
+        const modifiedCategoryByGroup = helper.modifyCategoryByGroup(categoryByGroup)
+        return { categoryByGroup: modifiedCategoryByGroup };
+    } catch (err) {
+        throw err
+    }
+}
+
+const GetCategoryGroupByIdService = async ({ categroupId }) => {
+    try {
+        const categoryByGroup = await prisma.category_Group.findMany({
+            where: {
+                categroup_id: categroupId
+            },
+            include: {
+                categories: true
+            }
+        });
+        const modifiedCategoryByGroup = helper.modifyCategoryByGroup(categoryByGroup);
+        return { categoryByGroup: modifiedCategoryByGroup };
+    } catch (err) {
+        throw err;
+    }
+};
+
+
 module.exports = {
-    GetAllService, 
+    GetAllCategoryService, 
     getCategoryByIdService,
     createCategorService, 
     getCategoryGroupByIdService,
     createCategorGroupService,
     getNameCategoryService,
     getNameGroupService,
-    createCategorGroupService
+    createCategorGroupService,
+    GetAllCateGroupService,
+    CategoryByCateGroupService,
+    GetCategoryGroupByIdService
 }
