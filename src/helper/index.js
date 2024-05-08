@@ -3,8 +3,11 @@ const {
     loginValidate
 } = require('./validation')
 
+const {modifyCategoryByGroup} = require('./modifiedCategoryRes')
+
 
 module.exports = {
     registerValidate,
-    loginValidate
+    loginValidate,
+    modifyCategoryByGroup
 }

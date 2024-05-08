@@ -4,7 +4,7 @@ const CustomError = require('../errors')
 
 const GetAllCategory = async (req, res, next) => {
     try {
-        const {categories} = await categoryService.GetAllService()
+        const {categories} = await categoryService.GetAllCategoryService()
         res.status(StatusCodes.OK).json({categories})
     } catch (err) {
         next(err)
@@ -42,8 +42,39 @@ const CreateCategoryGroup = async (req, res, next) => {
     }
 }
 
+const GetAllCategoryGroups = async (req, res, next) => {
+    try {
+        const {categroup} = await categoryService.GetAllCateGroupService();
+        res.status(StatusCodes.OK).json({categroup});
+    } catch (err) {
+        next(err)
+    }
+}
+
+const GetCategoryByCategoryGroupAll = async (req, res, next) => {
+    try {
+        const {categoryByGroup} = await categoryService.CategoryByCateGroupService();
+        res.status(StatusCodes.OK).json({categoryByGroup});
+    } catch (err) {
+        next(err)
+    }
+}
+
+const GetCategoryGroupById = async (req, res, next) => {
+    try {
+        const categroupId = parseInt(req.params.id, 10);
+        const {categoryByGroup} = await categoryService.GetCategoryGroupByIdService({categroupId});
+        res.status(StatusCodes.OK).json({categoryByGroup});
+    } catch (err) {
+        next(err)
+    }
+}
+
 module.exports = {
     GetAllCategory,
     CreateCategory,
-    CreateCategoryGroup
+    CreateCategoryGroup,
+    GetAllCategoryGroups,
+    GetCategoryByCategoryGroupAll,
+    GetCategoryGroupById
 }

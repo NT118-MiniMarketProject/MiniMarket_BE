@@ -3,7 +3,10 @@ const router = express.Router();
 const {
     GetAllCategory,
     CreateCategory,
-    CreateCategoryGroup
+    CreateCategoryGroup,
+    GetAllCategoryGroups,
+    GetCategoryByCategoryGroupAll,
+    GetCategoryGroupById
 } = require('../controllers/category.controller')
 
 const {
@@ -15,7 +18,12 @@ router.route('/')
       .get(GetAllCategory)
       .post([authenticateUser, authorizePermissions('admin')], CreateCategory)
 
-router.route('/group').post([authenticateUser, authorizePermissions('admin')], CreateCategoryGroup)
+router.route('/group')
+      .post([authenticateUser, authorizePermissions('admin')], CreateCategoryGroup)
+      .get(GetAllCategoryGroups)
+
+router.get('/group/all', GetCategoryByCategoryGroupAll);
+router.get('/group/:id', GetCategoryGroupById);
 
 
 module.exports = router
