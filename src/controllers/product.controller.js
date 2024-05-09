@@ -1,6 +1,18 @@
 const {StatusCodes} = require('http-status-codes')
 const ProductService = require('../services/product.service')
 
+//PRODUCTS
+const GetAllProducts = async (req, res, next) => {
+    try {
+        const query = req.query
+        const {products, numOfPages, totalProducts, currentPage } = await ProductService.GetProductsService(query);
+        res.status(StatusCodes.OK).json({numOfPages, totalProducts, currentPage, products});
+    } catch (err) {
+        next(err)
+    }
+}
+
+//WISHLIST
 const addWishList = async (req, res, next) => {
     try {
         const {product_id} = req.body
@@ -36,17 +48,9 @@ const getProductsInWishList = async (req, res, next) => {
     }
 }
 
-const GetAllProducts = async (req, res, next) => {
-    try {
-        const query = req.query
-        const {} = null
-    } catch (err) {
-        next(err)
-    }
-}
-
 module.exports = {
     addWishList,
     removeWishList,
-    getProductsInWishList
+    getProductsInWishList,
+    GetAllProducts
 }

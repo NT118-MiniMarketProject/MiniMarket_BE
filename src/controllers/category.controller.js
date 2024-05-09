@@ -67,11 +67,24 @@ const GetCategoryGroupById = async (req, res, next) => {
     }
 }
 
+const GetProductByCategoryGroup = async (req, res, next) => {
+    try {
+        const categroupId = parseInt(req.params.id, 10);
+        const query = req.query
+        const {products, numOfPages, totalProducts, currentPage } = await categoryService.getProductByCategoryGroupService({categroupId, query})
+        // const {result} = await categoryService.getProductByCategoryGroupService({categroupId, query})
+        res.status(StatusCodes.OK).json({numOfPages, totalProducts, currentPage, products});
+    } catch (err) {
+        next(err)
+    }
+}
+
 module.exports = {
     GetAllCategory,
     CreateCategory,
     CreateCategoryGroup,
     GetAllCategoryGroups,
     GetCategoryByCategoryGroupAll,
-    GetCategoryGroupById
+    GetCategoryGroupById,
+    GetProductByCategoryGroup
 }

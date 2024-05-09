@@ -16,6 +16,92 @@ const GetProductById = async({product_id}) => {
     }
 }
 
+
+//search 
+const GetProductsService = async(query) => {
+    try {
+        //query
+        const where = {};
+        if(query.search) {
+            where.name = {
+                contains: query.search,
+                mode: 'insensitive'
+            };
+        }
+        if(query.cid) {
+            where.c_id = query.cid;
+        } 
+        if(query.brid) {
+            where.br_id = query.brid;
+        }
+        if(query.keyword) {
+            where.OR = [
+                {
+                    discount_percent: {
+                        not: 0
+                    }
+                },
+                {
+                    event_price: {
+                        not: null
+                    }
+                }
+            ]
+        }
+        if(query.categoryGroupId) {
+            where.category= {
+                category_group: {
+                    categroup_id: query.categoryGroupId
+                }
+            }
+        }
+
+        //sort
+        let orderBy = {}
+        if(query.sort === 'minTomax') {
+            orderBy = {
+                reg_price: 'asc'
+            };
+        } else if (query.sort === 'a-z') {
+            orderBy = {
+                name: 'asc'
+            };
+        } else if(query.sort === 'z-a') {
+            orderBy = {
+                name: 'desc'
+            };
+        } else if(query.sort === 'maxTomin') {
+            orderBy = {
+                reg_price: 'desc'
+            };
+        }
+
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        // console.log(where)
+
+        // console.log(orderBy)
+
+        const products = await prisma.product.findMany({
+            where,
+            orderBy,
+            take: limit,
+            skip
+        });
+
+        const totalProducts = await prisma.product.count({
+            where
+        });
+
+        return { products, numOfPages: Math.ceil(totalProducts / limit), totalProducts, currentPage: page }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
 //function used for brand
 const GetProductsByCategoryList = async({categoryList}) => {
     try {
@@ -125,5 +211,6 @@ module.exports = {
     addToWishList,
     removeFromWishList,
     retrieveFromWishList,
-    GetProductsByCategoryList
+    GetProductsByCategoryList,
+    GetProductsService
 }
