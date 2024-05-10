@@ -1,6 +1,7 @@
 const prisma = require('../config/prisma.instance')
 const CustomError = require('../errors')
 const helper = require('../helper')
+const productService = require('./product.service')
 
 
 const GetAllCategoryService = async() => {
@@ -136,6 +137,7 @@ const CategoryByCateGroupService = async({ categroupId }) => {
         let categoryByGroup;
         if(categroupId) {
             const {categoryGroup} = await getCategoryGroupByIdService({categorygroup: categroupId});
+
             if(!categoryGroup) 
                 throw new CustomError.NotFoundError(`Not found category group`);
 
@@ -163,6 +165,24 @@ const CategoryByCateGroupService = async({ categroupId }) => {
     }
 }
 
+const getProductByCategoryGroupService = async({categroupId, query}) => {
+    try {
+        const {categoryGroup} = await getCategoryGroupByIdService({categorygroup: categroupId});
+
+        if(!categoryGroup) 
+            throw new CustomError.NotFoundError(`Not found category group`);
+
+        query.categoryGroupId = categroupId;
+        
+        const {products, numOfPages, totalProducts, currentPage} = await productService.GetProductsService(query);
+
+        return {products, numOfPages, totalProducts, currentPage}
+
+    } catch (err) {
+        throw err
+    }
+}
+
 module.exports = {
     GetAllCategoryService, 
     createCategorService, 
@@ -171,5 +191,6 @@ module.exports = {
     createCategorGroupService,
     GetAllCateGroupService,
     CategoryByCateGroupService,
-    getCategoryListByCategoryGroupService
+    getCategoryListByCategoryGroupService,
+    getProductByCategoryGroupService
 }

@@ -1,9 +1,10 @@
 const prisma = require('../config/prisma.instance');
 const CustomError = require('../errors')
+const helper = require('../helper')
 
 
 //Common
-const GetProductById = async({product_id}) => {
+const GetProductByIdService = async({product_id}) => {
     try {
         const product = await prisma.product.findUnique({
             where: {
@@ -13,6 +14,116 @@ const GetProductById = async({product_id}) => {
         return {product: product}
     } catch (err) {
         throw err
+    }
+}
+
+
+//search 
+const GetProductsService = async(query) => {
+    try {
+        const where = {...helper.queryProduct.SearchQuery(query)}
+        // console.log(where)
+
+        const orderBy = helper.queryProduct.QuerySort(query.sort)
+        // console.log(orderBy)
+
+        const page = Number(query.page) || 1;
+        const limit = Number(query.limit) || 20;
+        const skip = (page - 1) * limit;
+
+        const products = await prisma.product.findMany({
+            where,
+            orderBy,
+            take: limit,
+            skip
+        });
+
+        const totalProducts = await prisma.product.count({
+            where
+        });
+
+        return { products, numOfPages: Math.ceil(totalProducts / limit), totalProducts, currentPage: page }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+//products
+const GetPopularProductsService = async() => {
+    const query = {
+        popular: 1
+    }; 
+    const {products} = await GetProductsService(query);
+
+    const CategoryIds = [...new Set(products.map(product => product.c_id))];
+
+    const popularProduct = await prisma.category.findMany({
+        where: {
+            category_id: {
+                in: CategoryIds
+            }
+        }, 
+        select: {
+            category_id: true,
+            category_name: true,
+            products: {
+                where: {
+                    is_feature: 1
+                },
+                take: 5
+            }
+        }
+    });
+
+    return {data: popularProduct}
+}
+
+const GetDetailOfProductService = async({productId}) => {
+    try {
+        const {product: ValidId} = await GetProductByIdService({product_id: productId});
+
+        if(!ValidId)
+            throw new CustomError.NotFoundError(`Not found productId: ${productId}`)
+
+        const data = await prisma.product.findUnique({
+            where: {
+                product_id: productId
+            },
+            include: {
+                galleries: true
+            }
+        })
+        return {data}
+    } catch (err) {
+        throw err;
+    }
+}
+
+const GetReleventProductService = async({productId}) => {
+    try {
+        const {product: ValidId} = await GetProductByIdService({product_id: productId});
+
+        if(!ValidId)
+            throw new CustomError.NotFoundError(`Not found productId: ${productId}`);
+
+        const totalProducts = await prisma.product.count({});
+        const num = parseInt(ValidId)
+        const arrayNum = helper.queryProduct.RandomNumber(num, totalProducts);
+
+        const data = await prisma.product.findMany({
+            where: {
+                c_id: ValidId.c_id,
+                product_id: {
+                    in: arrayNum
+                }
+            }, 
+            take: 5
+        });
+        return {data}
+    } catch (err) {
+        console.log(err);
+        throw err;
     }
 }
 
@@ -47,7 +158,7 @@ const checkWishList = async({product_id, user}) => {
 
 const addToWishList = async ({product_id, user}) => {
     try {
-        const {product} = await GetProductById({product_id})
+        const {product} = await GetProductByIdService({product_id})
         const {validProductInWishList} = await checkWishList({product_id, user})
 
         if (!product) {
@@ -125,5 +236,9 @@ module.exports = {
     addToWishList,
     removeFromWishList,
     retrieveFromWishList,
-    GetProductsByCategoryList
+    GetProductsByCategoryList,
+    GetProductsService,
+    GetPopularProductsService,
+    GetDetailOfProductService,
+    GetReleventProductService
 }

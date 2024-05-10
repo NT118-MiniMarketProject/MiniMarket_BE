@@ -7,7 +7,6 @@ const {
     passwordHash,
     ComparePassword
 } = require('./passwordHash')
-const createHash = require('./createHash')
 
 module.exports = {
   createJWT,
@@ -18,6 +17,5 @@ module.exports = {
 //   CartPermissions,
 //   forgotPasswordEmail,
     passwordHash,
-    createHash,
     ComparePassword
 }
