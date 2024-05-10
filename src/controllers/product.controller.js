@@ -12,6 +12,35 @@ const GetAllProducts = async (req, res, next) => {
     }
 }
 
+const GetPopularProducts = async (req, res, next) => {
+    try {
+        const {data} = await ProductService.GetPopularProductsService();
+        res.status(StatusCodes.OK).json({data});
+    } catch (err) {
+        next(err)
+    }
+}
+
+const GetDetailOfProducts = async (req, res, next) => {
+    try {
+        const {id: productId} = req.params;
+        const {data} = await ProductService.GetDetailOfProductService({productId});
+        res.status(StatusCodes.OK).json({data});
+    } catch (err) {
+        next(err)
+    }
+}
+
+const GetReleventProduct = async (req, res, next) => {
+    try {
+        const {id: productId} = req.params;
+        const {data} = await ProductService.GetReleventProductService({productId});
+        res.status(StatusCodes.OK).json({data});
+    } catch (err) {
+        next(err)
+    }
+}
+
 //WISHLIST
 const addWishList = async (req, res, next) => {
     try {
@@ -52,5 +81,8 @@ module.exports = {
     addWishList,
     removeWishList,
     getProductsInWishList,
-    GetAllProducts
+    GetAllProducts,
+    GetPopularProducts,
+    GetDetailOfProducts,
+    GetReleventProduct
 }
