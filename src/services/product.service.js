@@ -107,18 +107,21 @@ const GetReleventProductService = async({productId}) => {
         if(!ValidId)
             throw new CustomError.NotFoundError(`Not found productId: ${productId}`);
 
-        const totalProducts = await prisma.product.count({});
-        const num = parseInt(ValidId)
-        const arrayNum = helper.queryProduct.RandomNumber(num, totalProducts);
+        const products = await prisma.product.findMany({
+            where: {
+                c_id: ValidId.c_id
+            }
+        })
+
+        const ProductIds = [...new Set(products.map(product => product.product_id))];
+        const randomProductIds = ProductIds.sort(() => 0.5 - Math.random()).slice(0, 5);
 
         const data = await prisma.product.findMany({
             where: {
-                c_id: ValidId.c_id,
                 product_id: {
-                    in: arrayNum
+                    in: randomProductIds
                 }
-            }, 
-            take: 5
+            }
         });
         return {data}
     } catch (err) {

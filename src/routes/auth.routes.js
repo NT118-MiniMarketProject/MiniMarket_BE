@@ -15,6 +15,5 @@ const  {
 router.post('/register', register)
 router.post('/login', login)
 router.delete('/logout', authenticateUser, logout)
-router.get
 
 module.exports = router     

@@ -61,21 +61,7 @@ const QuerySort = (sort) => {
     return orderBy;
 }
 
-const RandomNumber = (num, total) => {
-    const arrayNum = [];
-    while(arrayNum.length < 5) {
-        const randomNumber = Math.floor(Math.random() * total) + 1;
-        if(!arrayNum.includes(randomNumber)){
-            let NewRandomNumber = randomNumber.toString();
-            arrayNum.push(NewRandomNumber);
-        }
-            
-    }
-    return arrayNum;
-}
-
 module.exports = {
     SearchQuery,
-    QuerySort,
-    RandomNumber
+    QuerySort
 }
