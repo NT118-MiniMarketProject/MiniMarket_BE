@@ -28,7 +28,7 @@ const GetProductsService = async(query) => {
         // console.log(orderBy)
 
         const page = Number(query.page) || 1;
-        const limit = Number(query.limit) || 20;
+        const limit = Number(query.limit) || 15;
         const skip = (page - 1) * limit;
 
         const products = await prisma.product.findMany({
