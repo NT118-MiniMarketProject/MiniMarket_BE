@@ -29,6 +29,21 @@ const ProfileService = async({userId}) => {
     }
 }
 
+const UpdateUserService = async({userId, body}) => {
+    try {
+        const data = await prisma.user.update({
+            where: {
+                id: userId
+            },
+            data: body
+        });
+        return {data};
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
-    ProfileService
+    ProfileService,
+    UpdateUserService
 }

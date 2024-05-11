@@ -2,6 +2,7 @@ const prisma = require('../config/prisma.instance')
 const CustomError = require('../errors')
 const helper = require('../helper')
 const productService = require('./product.service')
+const utils = require('../utils')
 
 
 const GetAllCategoryService = async() => {
@@ -80,15 +81,21 @@ const getNameGroupService = async ({name}) => {
     }
 }
 
-const createCategorService = async({body}) => {
+const createCategorService = async({body, file = null}) => {
     try {
         
-        const {category_name, thumbnail_category, categroup} = body
+        const {category_name, categroup} = body
+
+        let thumbnail_category
 
         const {NameExist} = await getNameCategoryService({name: category_name})
 
         if(NameExist) 
-            throw new CustomError.BadRequestError(`Name already exists`)
+            throw new CustomError.BadRequestError(`Name already exists`);
+
+        if(file){
+            thumbnail_category = await utils.uploadImageConfig(file);
+        }
 
         const category = await prisma.category.create({
             data: {
@@ -99,6 +106,7 @@ const createCategorService = async({body}) => {
         })
         return {category: category}
     } catch (err) {
+        console.log(err)
         throw err
     }
 }

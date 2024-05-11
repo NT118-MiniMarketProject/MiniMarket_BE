@@ -1,6 +1,7 @@
 const categoryService = require('../services/category.service')
 const {StatusCodes} = require('http-status-codes')
 const CustomError = require('../errors')
+const utils = require('../utils')
 
 const GetAllCategory = async (req, res, next) => {
     try {
@@ -15,13 +16,15 @@ const CreateCategory = async (req, res, next) => {
     try {
         
         const body = req.body
+        body.categroup = parseInt(body.categroup, 10);
+        const file = req.files ? req.files.image.tempFilePath : null;
         const {categoryGroup} = await categoryService.getCategoryGroupByIdService({categorygroup: body.categroup})
 
         if(!categoryGroup) {
             throw new CustomError.BadRequestError(`Invalid category group`)
         }
 
-        const {category} = await categoryService.createCategorService({body})
+        const {category} = await categoryService.createCategorService({body, file})
         res.status(StatusCodes.OK).json({category})
     } catch (err) {
         next(err)
@@ -79,6 +82,17 @@ const GetProductByCategoryGroup = async (req, res, next) => {
     }
 }
 
+const UploadImageForCategory = async (req, res, next) => {
+    try {
+        const file = req.files ? req.files.image.tempFilePath : null;
+        const category = await utils.uploadImage(req.params.id, file, 3);
+        res.status(StatusCodes.OK).json({category})
+    } catch (err) {
+        console.log(err)
+        next(err)
+    }
+}
+
 module.exports = {
     GetAllCategory,
     CreateCategory,
@@ -86,5 +100,6 @@ module.exports = {
     GetAllCategoryGroups,
     GetCategoryByCategoryGroupAll,
     GetCategoryGroupById,
-    GetProductByCategoryGroup
+    GetProductByCategoryGroup,
+    UploadImageForCategory
 }

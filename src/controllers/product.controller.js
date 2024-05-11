@@ -1,5 +1,6 @@
 const {StatusCodes} = require('http-status-codes')
 const ProductService = require('../services/product.service')
+const utils = require('../utils')
 
 //PRODUCTS
 const GetAllProducts = async (req, res, next) => {
@@ -38,6 +39,49 @@ const GetReleventProduct = async (req, res, next) => {
         res.status(StatusCodes.OK).json({data});
     } catch (err) {
         next(err)
+    }
+}
+
+const CreateProduct = async (req, res, next) => {
+    try {
+        const body = req.body;
+        const file = req.files ? req.files.image.tempFilePath : null;
+        const {data} = await ProductService.CreateBodyService({body, file})
+        res.status(StatusCodes.OK).json({data});
+    } catch (err) {
+        next(err)
+    }   
+}
+
+const UploadImageForProduct = async (req, res, next) => {
+    try {
+        const file = req.files ? req.files.image.tempFilePath : null;
+        const data = await utils.uploadImage(req.params.id, file, 2);
+        res.status(StatusCodes.OK).json({data});
+    } catch (err) {
+        next(err);
+    }
+}
+
+const UpdateProduct = async (req, res, next) => {
+    try {
+        const body = req.body;
+        console.log(req.params.id)
+        const {data} = await ProductService.UpdateProductService(body, req.params.id);
+        res.status(StatusCodes.OK).json({data});
+    } catch(err) {
+        next(err);
+    }
+}
+
+const DeleteProduct = async (req, res, next) => {
+    try {
+        const body = req.body;
+        console.log(req.params.id)
+        const data = await ProductService.DeleteProductService(req.params.id);
+        res.status(StatusCodes.OK).json({msg: 'Product deleted successfully', data});
+    } catch(err) {
+        next(err);
     }
 }
 
@@ -84,5 +128,9 @@ module.exports = {
     GetAllProducts,
     GetPopularProducts,
     GetDetailOfProducts,
-    GetReleventProduct
+    GetReleventProduct,
+    CreateProduct,
+    UploadImageForProduct,
+    UpdateProduct,
+    DeleteProduct
 }

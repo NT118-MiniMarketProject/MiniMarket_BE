@@ -1,6 +1,9 @@
 const prisma = require('../config/prisma.instance');
 const CustomError = require('../errors')
 const helper = require('../helper')
+const utils = require('../utils')
+const categoryService = require('./category.service')
+const brandService = require('./brand.service')
 
 
 //Common
@@ -130,6 +133,18 @@ const GetReleventProductService = async({productId}) => {
     }
 }
 
+const getProductByNameService = async(name) => {
+    try {
+        const NameExist = await prisma.product.findFirst({
+            where: {
+                name: name
+            }
+        });
+        return NameExist;
+    } catch (err) {
+        throw err;
+    }
+}
 //function used for brand
 const GetProductsByCategoryList = async({categoryList}) => {
     try {
@@ -143,6 +158,107 @@ const GetProductsByCategoryList = async({categoryList}) => {
             }
         });
         return {productList: productList};
+    } catch (err) {
+        throw err;
+    }
+}
+
+const CreateBodyService = async({body, file = null}) => {
+    try {
+        const {
+            name, 
+            reg_price,
+            discount_percent,
+            discount_price,
+            quantity,
+            unit, 
+            canonical,
+            description,
+            rating, 
+            c_id,
+            br_id,
+            event_percent,
+            event_price,
+            is_visible,
+            is_feature,
+        } = body;
+
+        const {category} = await categoryService.getCategoryByIdService({category_id: c_id});
+        if(!category) 
+            throw new CustomError.BadRequestError(`category_id doesnt exist`);
+
+        const {brand} = await brandService.GetBrandByIdService({brandId: br_id});
+        if(!brand) 
+            throw new CustomError.BadRequestError(`brand_id doesnt exist`);
+
+        const NameExist = await getProductByNameService(name)
+        if(NameExist) 
+            throw new CustomError.BadRequestError(`Name already exists`)
+
+        let image;
+        if(file){
+            image = await utils.uploadImageConfig(file);
+        }
+
+        const newData = {
+            thumbnail: image,
+            name, 
+            reg_price: parseFloat(reg_price),
+            discount_percent: parseInt(discount_percent),
+            discount_price: parseFloat(discount_price),
+            quantity: parseInt(quantity),
+            unit, 
+            canonical,
+            description,
+            rating: parseInt(rating), 
+            c_id,
+            br_id,
+            event_percent: parseInt(event_percent),
+            event_price: parseInt(event_price),
+            is_visible: parseInt(is_visible),
+            is_feature: parseInt(is_feature)
+        };
+
+        const Returndata = await prisma.product.create({
+            data: newData
+        });
+
+        return {data: Returndata};
+    } catch (err) {
+        throw err;
+    }
+}
+
+const UpdateProductService = async(body, product_id) => {
+    try {
+        const {product} = await GetProductByIdService({product_id});
+        if(!product)
+            throw new CustomError.NotFoundError(`Not found productId: ${product_id}`);
+
+        const data = await prisma.product.update({
+            where: {
+                product_id: product_id
+            }, 
+            data: body
+        });
+        return {data};
+    } catch (err) {
+        throw err;
+    }
+}
+
+const DeleteProductService = async(product_id) => {
+    try {
+        const {product} = await GetProductByIdService({product_id});
+        if(!product)
+            throw new CustomError.NotFoundError(`Not found productId: ${product_id}`);
+
+        const data = await prisma.product.delete({
+            where: {
+                product_id: product_id
+            }
+        });
+        return Promise.resolve(data);
     } catch (err) {
         throw err;
     }
@@ -243,5 +359,8 @@ module.exports = {
     GetProductsService,
     GetPopularProductsService,
     GetDetailOfProductService,
-    GetReleventProductService
+    GetReleventProductService,
+    CreateBodyService,
+    UpdateProductService,
+    DeleteProductService
 }

@@ -60,7 +60,21 @@ const GetBrandByCategoryService = async({categoryId}) => {
     }
 }
 
+const GetBrandByIdService = async({brandId}) => {
+    try {
+        const brand = await prisma.brand.findFirst({
+            where: {
+                brand_id: brandId
+            }
+        });
+        return {brand};
+    } catch (err) {
+        throw err 
+    }
+}
+
 module.exports = {
     GetBrandByCategoryGroupService,
-    GetBrandByCategoryService
+    GetBrandByCategoryService,
+    GetBrandByIdService
 }
