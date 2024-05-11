@@ -7,6 +7,10 @@ const {
     passwordHash,
     ComparePassword
 } = require('./passwordHash')
+const {
+    uploadImageConfig,
+    uploadImage
+} = require('./uploadFile')
 
 module.exports = {
   createJWT,
@@ -17,5 +21,7 @@ module.exports = {
 //   CartPermissions,
 //   forgotPasswordEmail,
     passwordHash,
-    ComparePassword
+    ComparePassword,
+    uploadImage,
+    uploadImageConfig
 }

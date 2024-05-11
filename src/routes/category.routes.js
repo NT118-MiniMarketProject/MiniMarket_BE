@@ -18,6 +18,7 @@ router.route('/group')
 router.get('/group/all', categoryService.GetCategoryByCategoryGroupAll);
 router.get('/group/:id', categoryService.GetCategoryGroupById);
 router.get('/group/search/:id', categoryService.GetProductByCategoryGroup);
+router.post('/upload/:id', authenticateUser, authorizePermissions('admin'), categoryService.UploadImageForCategory)
 
 
 module.exports = router

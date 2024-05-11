@@ -12,8 +12,13 @@ const rateLimiter = require('express-rate-limit')
 const helmet = require('helmet')
 const xss = require('xss-clean')
 const cors = require('cors')
+const bodyParser = require('body-parser')
 
 const Router = require('./src/routes/index')
+
+//v2
+const cloudinary = require('./src/config/cloudinary');
+
 
 //middleware
 const notFoundMiddleware = require('./src/middleware/not-found')
