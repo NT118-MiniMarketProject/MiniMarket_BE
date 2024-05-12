@@ -1,27 +1,15 @@
 const prisma = require('../config/prisma.instance')
-const CustomError = require('../errors')
-const {
-    passwordHash,  
-    attachCookiesToResponse,
-    createTokenUser,
-    ComparePassword
-} = require('../utils')
-const crypto = require('crypto')
+const helper = require('../helper')
+
 
 const ProfileService = async({userId}) => {
     try {
+        const select = helper.CustomResponse.UserResponse();
         const data = await prisma.user.findUnique({
             where: {
                 id: userId
             },
-            select: {
-                name: true, 
-                email: true,
-                phone: true,
-                address: true,
-                avater: true,
-                role: true
-            }
+            select
         })
         return {data}
     } catch (err) {
