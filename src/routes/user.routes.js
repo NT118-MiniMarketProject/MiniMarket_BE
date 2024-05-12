@@ -11,6 +11,8 @@ const userController = require('../controllers/user.controller')
 router.route('/showMe').get(authenticateUser, userController.showCurrentUser)
                        .post(authenticateUser, userController.UploadAvatar)
 
-router.post('/', authenticateUser, userController.UpdateUser);
+router.route('/')
+      .post(authenticateUser, userController.UpdateUser)
+      .get([authenticateUser, authorizePermissions('admin')], userController.GetAllUsers)
 
 module.exports = router 
