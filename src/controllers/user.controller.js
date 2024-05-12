@@ -31,8 +31,18 @@ const UploadAvatar = async(req, res, next) => {
   }
 }
 
+const GetAllUsers = async (req, res, next) => {
+  try {
+    const {data} = await userService.GetAllUsersService();
+    res.status(StatusCodes.OK).json({data});
+  } catch(err) {
+    next(err)
+  }
+}
+
 module.exports = {
     showCurrentUser,
     UpdateUser,
-    UploadAvatar
+    UploadAvatar,
+    GetAllUsers
 }
