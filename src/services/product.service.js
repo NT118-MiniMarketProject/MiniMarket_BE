@@ -362,5 +362,6 @@ module.exports = {
     GetReleventProductService,
     CreateBodyService,
     UpdateProductService,
-    DeleteProductService
+    DeleteProductService,
+    GetProductByIdService
 }
