@@ -1,7 +1,7 @@
 const { createJWT, isTokenValid, attachCookiesToResponse } = require('./jwt')
 const createTokenUser = require('./createTokenUser')
-// const checkPermissions = require('./checkPermissions')
-// const CartPermissions = require('./CartPermission')
+const checkPermissions = require('./checkPermission')
+const CartPermissions = require('./cartPermission')
 // const forgotPasswordEmail = require('./ForgetPassword')
 const {
     passwordHash,
@@ -17,8 +17,8 @@ module.exports = {
   isTokenValid,
   attachCookiesToResponse,
   createTokenUser,
-//   checkPermissions,
-//   CartPermissions,
+  checkPermissions,
+  CartPermissions,
 //   forgotPasswordEmail,
     passwordHash,
     ComparePassword,
