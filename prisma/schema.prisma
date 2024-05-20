@@ -132,8 +132,8 @@ model OrderItem {
 
 model Cart {
   cart_id   String     @id @unique @default(uuid())
-  quantity  Int
-  total     Float
+  quantity  Int?
+  total     Float?
   saved     Float?
   user_id   String
   user      User       @relation(fields: [user_id], references: [id])
