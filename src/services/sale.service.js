@@ -7,16 +7,10 @@ const GetSalesService = async () => {
         const getList = await prisma.saleEvent.findMany({
             where: {
                 is_visible: 1
-            },
-            select: {
-                saleEventId: true,
-                nameEvent: true,
-                description: true,
-                startTime: true,
-                endTime: true
             }
         })
-        return {saleList: getList}
+        const list = getList.map(({ is_visible, ...rest }) => rest)
+        return {saleList: list}
     } catch (err) {
         throw err
     }
