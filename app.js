@@ -13,6 +13,7 @@ const helmet = require('helmet')
 const xss = require('xss-clean')
 const cors = require('cors')
 const bodyParser = require('body-parser')
+// const redis = require('./src/config/redis')
 
 const Router = require('./src/routes/index')
 
