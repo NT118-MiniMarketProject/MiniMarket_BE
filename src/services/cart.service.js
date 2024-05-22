@@ -124,7 +124,7 @@ const AddService = async({body, userId}) => {
             });
         }
         
-        for(const item of products) {
+        const promise = products.map(async(item) =>{
             const { product } = await ProductService.GetProductByIdService({ product_id: item.productId });
             if (!product)
                 throw new CustomError.NotFoundError(`Not found product with id: ${item.productId}`);
@@ -141,7 +141,9 @@ const AddService = async({body, userId}) => {
             } else {
                 cartItem = await AddToCartNotSale({ item, product, cartId: cart.cart_id });
             }
-        }
+        });
+
+        Promise.all(promise);
 
         const select = helper.CustomResponse.CartResponse();
 
@@ -240,9 +242,14 @@ const UpdateQuantityService = async({userId, cartItemId, quantity}) => {
 
             await ProductService.UpdateProductService(newProductData, ExistCartItem.product);
 
-            if(check) 
-                await UpdateSalesItem(check.saleItemId, check.quantity)
-
+            if(check) {
+                let CheckRemain = check.quantity - check.remain;
+                if(CheckRemain >= ExistCartItem.quantity)
+                    await UpdateSalesItem(check.saleItemId, (check.remain + ExistCartItem.quantity))
+                else {
+                    await UpdateSalesItem(check.saleItemId, (check.remain + CheckRemain));
+                }
+            }
             await DeleteService({cartItemId});
         }
         else {
