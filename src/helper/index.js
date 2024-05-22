@@ -6,6 +6,7 @@ const {
 const {modifyCategoryByGroup} = require('./modifiedCategoryRes')
 const queryProduct = require('./RequestQueryProduct')
 const CustomResponse = require('./CustomResponse')
+const cartHelper = require('./createNewCartItem')
 
 
 module.exports = {
@@ -13,5 +14,6 @@ module.exports = {
     loginValidate,
     modifyCategoryByGroup,
     queryProduct,
-    CustomResponse
+    CustomResponse,
+    cartHelper
 }

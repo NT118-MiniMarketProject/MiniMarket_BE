@@ -8,7 +8,7 @@ const {
 const CartController = require('../controllers/cart.controller')
 
 router.route('/')
-      .post(authenticateUser, CartController.AddToCart)
+      .post([authenticateUser,authorizePermissions('customer')], CartController.AddToCart)
       .get([authenticateUser,authorizePermissions('customer')], CartController.GetCartByUser)
 
 router.route('/:id')

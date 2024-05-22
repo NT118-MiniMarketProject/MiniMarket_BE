@@ -107,7 +107,7 @@ model Wishlist {
 model Order {
   order_id       String      @id @unique @default(uuid())
   address        String
-  total          Float
+  total          Float       @default(0)
   note           String?
   status         OrderType   @default(Pending)
   payment_method PaymentType @default(Cash)
@@ -142,8 +142,8 @@ model Cart {
 
 model CartItem {
   cartItem Int     @id @default(autoincrement())
-  quantity Int
-  total    Float
+  quantity Int?
+  total    Float?
   cartUser String
   product  String
   cart     Cart    @relation(fields: [cartUser], references: [cart_id])
