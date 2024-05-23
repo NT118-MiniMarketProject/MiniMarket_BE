@@ -54,7 +54,22 @@ const CartItemLoop = async ({cart, select}) => {
     }
 }
 
+const ResetCartItem = async ({cartItemId}) => {
+    await prisma.cartItem.update({
+            where: {
+               cartItem: cartItemId
+            },
+            data: {
+                quantity: 0,
+                total: 0,
+                saving: 0
+            }
+        });
+    return true;
+}
+
 module.exports = {
     createNewCartItem,
-    CartItemLoop
+    CartItemLoop,
+    ResetCartItem
 };

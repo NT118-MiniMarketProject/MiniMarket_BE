@@ -124,7 +124,7 @@ const AddService = async({body, userId}) => {
             });
         }
         
-        const promise = products.map(async(item) =>{
+        for(const item of products) {
             const { product } = await ProductService.GetProductByIdService({ product_id: item.productId });
             if (!product)
                 throw new CustomError.NotFoundError(`Not found product with id: ${item.productId}`);
@@ -141,9 +141,7 @@ const AddService = async({body, userId}) => {
             } else {
                 cartItem = await AddToCartNotSale({ item, product, cartId: cart.cart_id });
             }
-        });
-
-        Promise.all(promise);
+        }
 
         const select = helper.CustomResponse.CartResponse();
 
@@ -194,6 +192,9 @@ const UpdateService = async({cartItemId, quantity, price}) => {
 
         const {product} = await ProductService.GetProductByIdService({product_id:  ExistCartItem.product});
 
+        console.log( (price * (quantity - ExistCartItem.quantity)))
+        console.log(ExistCartItem.total)
+
         const data = await prisma.cartItem.update({
             where: {
                cartItem: cartItemId
@@ -223,15 +224,7 @@ const UpdateQuantityService = async({userId, cartItemId, quantity}) => {
     try {
         const select = helper.CustomResponse.CartResponse();
         const ExistCartItem = await GetCartItemByIdService(cartItemId);    
-        const {product} = await ProductService.GetProductByIdService({product_id: ExistCartItem.product})
-        
-        let price=0;
-        if(product.event_price){
-            price = product.event_price;
-        } else if(product.discount_price) 
-            price = product.discount_price;
-        else 
-            price = product.reg_price;
+        const {product} = await ProductService.GetProductByIdService({product_id: ExistCartItem.product});
 
         const check = await CheckSaleItems(product.product_id);
 
@@ -253,7 +246,19 @@ const UpdateQuantityService = async({userId, cartItemId, quantity}) => {
             await DeleteService({cartItemId});
         }
         else {
-            await UpdateService({cartItemId, quantity, price});
+            if(check) {
+                if(check.quantity >= quantity){
+                    await UpdateService({cartItemId, quantity, price: product.event_price});
+                    await UpdateSalesItem(check.saleItemId, (check.quantity - quantity));
+                } else if(check.quantity < quantity) {
+                    await helper.cartHelper.ResetCartItem({cartItemId});
+                    await UpdateService({cartItemId, quantity: check.quantity, price: product.event_price});
+                    await UpdateService({cartItemId, quantity, price: product.discount_price});
+                    await UpdateSalesItem(check.saleItemId, 0)
+                }
+            } else {
+                await UpdateService({cartItemId, quantity, price: product.discount_price});
+            }
         }
 
         const {data: cart} = await GetService({userId});
