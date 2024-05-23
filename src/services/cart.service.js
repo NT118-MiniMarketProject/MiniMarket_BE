@@ -3,11 +3,12 @@ const CustomError = require('../errors')
 const ProductService = require('./product.service')
 const helper = require('../helper')
 
-const FindCartItemService = async({productId}) => {
+const FindCartItemService = async({productId, cartId}) => {
     try {
         const cartItem = await prisma.cartItem.findFirst({
             where: {
-                product: productId
+                product: productId,
+                cartUser: cartId
             }
         });
         return {cartItem};
@@ -16,83 +17,139 @@ const FindCartItemService = async({productId}) => {
     }
 }
 
+const CheckSaleItems = async (id) => {
+    try {
+        const salesItems = await prisma.saleItem.findFirst({
+            where: {
+                productId: id
+            }
+        });
+
+        if(!salesItems)
+            return false;
+        else 
+            return salesItems;
+
+    } catch(err) {
+        throw err;
+    }
+}
+
+const UpdateSalesItem = async(id, remain) => {
+    const data = await prisma.saleItem.update({
+                where: {
+                    saleItemId: id
+                },
+                data: {
+                    remain: remain
+                }
+            });
+    return data;
+}
+
+const AddToCartSale = async({item, product, cartId, salesItems}) => {
+    try {
+        let cartItem;
+        const remain = salesItems.remain - item.quantity;
+        const {cartItem: ExistCartItem} = await FindCartItemService({productId: product.product_id, cartId});
+
+        let quantity = 0;
+        let NotSalesRemain = 0;
+        if(remain >= 0) {
+            quantity = item.quantity;
+            await UpdateSalesItem(salesItems.saleItemId, remain);
+        } else {
+            quantity = salesItems.remain;
+            NotSalesRemain = Math.abs(remain);
+            await UpdateSalesItem(salesItems.saleItemId, 0)
+        }
+
+        if(ExistCartItem) {
+            const Salequantity = quantity + ExistCartItem.quantity;
+            const {data} = await UpdateService({cartItemId: ExistCartItem.cartItem, quantity: Salequantity, price: product.event_price});
+            cartItem = {
+                ...data
+            }
+        } else {        
+            cartItem = await helper.cartHelper.createNewCartItem({quantity, product, cartId, price: product.event_price});
+        }
+        
+        if(NotSalesRemain > 0){
+            const item = {
+                quantity: NotSalesRemain 
+            }
+            cartItem = await AddToCartNotSale({item, product, cartId});
+        }
+
+        return cartItem;
+    } catch(err) {
+        throw err;
+    }
+}
+
+const AddToCartNotSale = async({item, product, cartId}) => {
+    try {
+        let cartItem;
+        if(product.discount_price) 
+            price = product.discount_price;
+        else 
+            price = product.reg_price;
+        const {cartItem: ExistCartItem} = await FindCartItemService({productId: product.product_id, cartId});
+        
+        if(ExistCartItem) {
+            const quantity = item.quantity + ExistCartItem.quantity;
+            const {data} = await UpdateService({cartItemId: ExistCartItem.cartItem, quantity, price});
+            cartItem = {
+                ...data
+            }
+        } else {
+            cartItem = await helper.cartHelper.createNewCartItem({quantity: item.quantity, product, cartId, price});
+        }
+        return cartItem;
+    } catch(err) {
+        throw err;
+    }
+}
+
 const AddService = async({body, userId}) => {
     try {
-        const {products, quantity} = body
-        let {data: cart} = await GetService({userId});
+        const { products } = body;
+        let { data: cart } = await GetService({ userId });
 
-        if(!cart) {
+        if (!cart) {
             cart = await prisma.cart.create({
-                data:{
+                data: {
                     user_id: userId
                 }
             });
         }
-
-        let totalPrice = 0;
-        let totalQuantity = 0;
-        let totalSaved = 0;
+        
         for(const item of products) {
-            let price;
-            let cartItem;
-            const {product} = await ProductService.GetProductByIdService({product_id: item.productId});
-            if(!product)
+            const { product } = await ProductService.GetProductByIdService({ product_id: item.productId });
+            if (!product)
                 throw new CustomError.NotFoundError(`Not found product with id: ${item.productId}`);
-
-            const {cartItem: ExistCartItem} = await FindCartItemService({productId: product.product_id});
-            if(ExistCartItem) {
-                const quantity = item.quantity + ExistCartItem.quantity;
-                const {data} = await UpdateService({cartItemId: ExistCartItem.cartItem, quantity});
-                cartItem = {
-                    ...data
-                }
-            } else {
-                if(product.discount_price) 
-                    price = product.discount_price;
-                else if (product.event_price)
-                    price = product.event_price;
-                else 
-                    price = product.reg_price;
-
-                const newData = {
-                    quantity: item.quantity,
-                    total: item.quantity * price,
-                    cartUser: cart.cart_id,
-                    product: product.product_id,
-                    saving: quantity * (product.reg_price - price)
-                };
-
-                cartItem = await prisma.cartItem.create({
-                    data: newData
-                });
-
-                const newProductData = {
-                    quantity: product.quantity - item.quantity
-                };
             
-                await ProductService.UpdateProductService(newProductData, product.product_id);
-            }
+            if (item.quantity > product.quantity) 
+                throw new CustomError.NotEnoughError('Insufficient quantity of product');
+            
 
-            totalPrice += cartItem.total;
-            totalQuantity += cartItem.quantity;
-            totalSaved += cartItem.saving;
+            const check = await CheckSaleItems(product.product_id);
+            
+            let cartItem;
+            if (check) {
+                cartItem = await AddToCartSale({ item, product, cartId: cart.cart_id, salesItems: check });
+            } else {
+                cartItem = await AddToCartNotSale({ item, product, cartId: cart.cart_id });
+            }
         }
 
-        const newCartData = {
-            quantity: totalQuantity,
-            total: totalPrice,
-            saved: totalSaved
-        };
+        const select = helper.CustomResponse.CartResponse();
 
-        const select = helper.CustomResponse.CartResponse()
-        const data = await prisma.cart.update({
-            where: {
-                cart_id: cart.cart_id
-            },
-            data: newCartData,
-            select
-        });
-        return {data};
+        let { data: Newcart } = await GetService({ userId });
+        
+        const {data} = await helper.cartHelper.CartItemLoop({cart: Newcart, select});
+
+        return { data };
 
     } catch(err) {
         throw err;
@@ -127,7 +184,7 @@ const GetCartItemByIdService= async(id) => {
     }
 }
 
-const UpdateService = async({cartItemId, quantity}) => {
+const UpdateService = async({cartItemId, quantity, price}) => {
     try {
         const select = helper.CustomResponse.CartItemResponse()
 
@@ -135,14 +192,17 @@ const UpdateService = async({cartItemId, quantity}) => {
 
         const {product} = await ProductService.GetProductByIdService({product_id:  ExistCartItem.product});
 
+        console.log( (price * (quantity - ExistCartItem.quantity)))
+        console.log(ExistCartItem.total)
+
         const data = await prisma.cartItem.update({
             where: {
                cartItem: cartItemId
             },
             data: {
                 quantity,
-                total: quantity * product.discount_price,
-                saving: quantity * (product.discount_price - product.reg_price)
+                total: ExistCartItem.total + (price * (quantity - ExistCartItem.quantity)),
+                saving: ((quantity - ExistCartItem.quantity) * (product.reg_price - price)) + ExistCartItem.saving
             },
             select
         });
@@ -163,41 +223,46 @@ const UpdateService = async({cartItemId, quantity}) => {
 const UpdateQuantityService = async({userId, cartItemId, quantity}) => {
     try {
         const select = helper.CustomResponse.CartResponse();
-        if(quantity == 0) {
-            const ExistCartItem = await GetCartItemByIdService(cartItemId);
+        const ExistCartItem = await GetCartItemByIdService(cartItemId);    
+        const {product} = await ProductService.GetProductByIdService({product_id: ExistCartItem.product});
 
-            const {product} = await ProductService.GetProductByIdService({product_id: ExistCartItem.product})
+        const check = await CheckSaleItems(product.product_id);
+
+        if(quantity == 0) {
             const newProductData = {
                 quantity: product.quantity +  ExistCartItem.quantity
             };
+
             await ProductService.UpdateProductService(newProductData, ExistCartItem.product);
 
+            if(check) {
+                let CheckRemain = check.quantity - check.remain;
+                if(CheckRemain >= ExistCartItem.quantity)
+                    await UpdateSalesItem(check.saleItemId, (check.remain + ExistCartItem.quantity))
+                else {
+                    await UpdateSalesItem(check.saleItemId, (check.remain + CheckRemain));
+                }
+            }
             await DeleteService({cartItemId});
         }
         else {
-            await UpdateService({cartItemId, quantity});
-        }
-        const {data: cart} = await GetService({userId});
-        let totalPrice = 0;
-        let totalQuantity = 0;
-        let totalSaved = 0;
-        for(const ele of cart.cartItems) {
-           totalPrice += ele.total;
-           totalQuantity += ele.quantity;
-           totalSaved += ele.saving;
+            if(check) {
+                if(check.quantity >= quantity){
+                    await UpdateService({cartItemId, quantity, price: product.event_price});
+                    await UpdateSalesItem(check.saleItemId, (check.quantity - quantity));
+                } else if(check.quantity < quantity) {
+                    await helper.cartHelper.ResetCartItem({cartItemId});
+                    await UpdateService({cartItemId, quantity: check.quantity, price: product.event_price});
+                    await UpdateService({cartItemId, quantity, price: product.discount_price});
+                    await UpdateSalesItem(check.saleItemId, 0)
+                }
+            } else {
+                await UpdateService({cartItemId, quantity, price: product.discount_price});
+            }
         }
 
-        const data = await prisma.cart.update({
-            where: {
-                cart_id: cart.cart_id
-            }, 
-            data: {
-                total: totalPrice,
-                quantity: totalQuantity,
-                saved: totalSaved
-            },
-            select
-        });
+        const {data: cart} = await GetService({userId});
+        const {data} = await helper.cartHelper.CartItemLoop({cart, select});
         return {data}
     } catch (err) {
         console.log(err);
@@ -221,7 +286,6 @@ const DeleteService = async({cartItemId}) => {
 module.exports = {
     AddService,
     GetService,
-    UpdateService,
     UpdateQuantityService,
     DeleteService
 }
