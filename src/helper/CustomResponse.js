@@ -44,8 +44,38 @@ const ProductCartItemResponse = () => {
     }
 }
 
+const OrderResponse = () => {
+    let orderItemResponse = OrderItemResponse();
+    return select = {
+        order_id: true,
+        address: true,
+        total: true,
+        note: true,
+        status: true,
+        payment_method: true,
+        orderitems: {
+            select: orderItemResponse
+        }
+    }
+}
+
+const OrderItemResponse = () => {
+    const ProductResponse = ProductCartItemResponse();
+    return select = {
+        orderitem_id: true,
+        price: true,
+        quantity: true,
+        total: true,
+        fromEvent: true,
+        products: {
+            select: ProductResponse
+        }
+    }
+}
+
 module.exports = {
     UserResponse,
     CartResponse, 
-    CartItemResponse
+    CartItemResponse,
+    OrderResponse
 }
