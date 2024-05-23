@@ -7,6 +7,10 @@ const {
 
 const OrderController = require('../controllers/order.controller')
 
-router.route('/').post(authenticateUser, OrderController.CreateOrder);
+router.route('/')
+      .post(authenticateUser, OrderController.CreateOrder)
+      .get(authenticateUser, OrderController.OrderList)
+
+router.route('/:id').get(authenticateUser, OrderController.DetailOrder)
 
 module.exports = router

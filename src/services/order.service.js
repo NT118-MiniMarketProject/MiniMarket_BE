@@ -1,5 +1,8 @@
 const prisma  = require('../config/prisma.instance')
 const CustomError = require('../errors')
+const CartService = require('./cart.service')
+const ProductService = require('./product.service')
+const helper = require('../helper')
 
 const AddService = async({body, userId}) => {
     try {
@@ -26,15 +29,76 @@ const AddService = async({body, userId}) => {
         });
 
         for (const ele of cart.cartItems) {
-            
+            const check = await CartService.CheckSaleItems(ele.product);
+            const {product} = await ProductService.GetProductByIdService({product_id: ele.product});
+            const data = {
+                price: product.event_price ? product.event_price : product.discount_price,
+                quantity: ele.quantity,
+                total: ele.total,
+                order_id: order.order_id,
+                product: ele.product,
+                fromEvent: (check) ? 1 : 0
+
+            }
+            await prisma.orderItem.create({
+                data
+            });
+
+            await CartService.DeleteService({cartItemId: ele.cartItem});
         }
 
-        return {data: order};
+
+        const select = helper.CustomResponse.OrderResponse();
+
+        let { data: NewOrder } = await GetDetailOfOrder({ orderId: order.order_id });
+        
+        const {data} = await helper.OrderHelper.OrderItemLoop({order: NewOrder, select});
+
+        await prisma.cart.delete({
+            where: {
+                cart_id: cart.cart_id
+            }
+        });
+
+        return {data}
+    } catch(err) {
+        console.log(err);
+        throw err;
+    }
+}
+
+const GetService = async({userId}) => {
+    try {
+        const select = helper.CustomResponse.OrderResponse();
+        const data = await prisma.order.findMany({
+            where: {
+                user_id: userId
+            },
+            select
+        });
+        return {data};
+    } catch (err) {
+        throw err;
+    }
+}
+
+const GetDetailOfOrder = async({orderId}) => {
+    try {
+        const select = helper.CustomResponse.OrderResponse();
+        const data = await prisma.order.findFirst({
+            where: {
+                order_id: orderId
+            },
+            select
+        });
+        return {data};
     } catch(err) {
         throw err;
     }
 }
 
 module.exports = {
-    AddService
+    AddService, 
+    GetService,
+    GetDetailOfOrder
 }

@@ -13,7 +13,8 @@ const CreateOrder = async(req, res, next) => {
 
 const OrderList = async(req, res, next) => {
     try {
-
+        const {data} = await OrderService.GetService({userId: req.user.userId});
+        res.status(StatusCodes.OK).json({data});
     } catch (err) {
         next(err);
     }
@@ -21,7 +22,8 @@ const OrderList = async(req, res, next) => {
 
 const DetailOrder = async(req, res, next) => {
     try {
-
+        const {data} = await OrderService.GetDetailOfOrder({orderId: req.params.id});
+        res.status(StatusCodes.OK).json({data});
     } catch (err) {
         next(err);
     }
