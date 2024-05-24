@@ -82,6 +82,26 @@ const GetService = async({userId}) => {
     }
 }
 
+const UpdateService = async({orderId, body}) => {
+    try {
+        const {status, payment_method} = body;
+        const Newdata = {
+            status,
+            payment_method
+        };
+        const data = await prisma.order.update({
+            where: {
+                order_id: orderId
+            },
+            data: Newdata
+        });
+
+        return {data};
+    } catch (err) {
+        throw err;
+    }
+}
+
 const GetDetailOfOrder = async({orderId}) => {
     try {
         const select = helper.CustomResponse.OrderResponse();
@@ -100,5 +120,6 @@ const GetDetailOfOrder = async({orderId}) => {
 module.exports = {
     AddService, 
     GetService,
-    GetDetailOfOrder
+    GetDetailOfOrder,
+    UpdateService
 }

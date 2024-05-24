@@ -11,6 +11,8 @@ router.route('/')
       .post(authenticateUser, OrderController.CreateOrder)
       .get(authenticateUser, OrderController.OrderList)
 
-router.route('/:id').get(authenticateUser, OrderController.DetailOrder)
+router.route('/:id')
+      .get(authenticateUser, OrderController.DetailOrder)
+      .put(authenticateUser, OrderController.UpdateCart)
 
 module.exports = router
