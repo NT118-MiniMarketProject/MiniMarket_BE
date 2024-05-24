@@ -29,8 +29,18 @@ const DetailOrder = async(req, res, next) => {
     }
 }
 
+const UpdateOrder = async(req, res, next) => {
+    try {
+        const {data} = await OrderService.UpdateService({orderId: req.params.id, body: req.body});
+        res.status(StatusCodes.OK).json({data});
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     CreateOrder,
     OrderList,
-    DetailOrder
+    DetailOrder,
+    UpdateOrder
 }
