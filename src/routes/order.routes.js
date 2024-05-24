@@ -13,6 +13,6 @@ router.route('/')
 
 router.route('/:id')
       .get(authenticateUser, OrderController.DetailOrder)
-      .put(authenticateUser, OrderController.UpdateCart)
+      .put(authenticateUser, OrderController.UpdateOrder)
 
 module.exports = router

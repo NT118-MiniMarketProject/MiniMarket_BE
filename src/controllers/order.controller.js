@@ -29,7 +29,7 @@ const DetailOrder = async(req, res, next) => {
     }
 }
 
-const UpdateCart = async(req, res, next) => {
+const UpdateOrder = async(req, res, next) => {
     try {
         const {data} = await OrderService.UpdateService({orderId: req.params.id, body: req.body});
         res.status(StatusCodes.OK).json({data});
@@ -42,5 +42,5 @@ module.exports = {
     CreateOrder,
     OrderList,
     DetailOrder,
-    UpdateCart
+    UpdateOrder
 }
