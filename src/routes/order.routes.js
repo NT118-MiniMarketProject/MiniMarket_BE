@@ -6,6 +6,7 @@ const {
 } = require('../middleware/authentication');
 
 const OrderController = require('../controllers/order.controller')
+const payment = require('../controllers/payment')
 
 router.route('/')
       .post(authenticateUser, OrderController.CreateOrder)
@@ -14,5 +15,7 @@ router.route('/')
 router.route('/:id')
       .get(authenticateUser, OrderController.DetailOrder)
       .put(authenticateUser, OrderController.UpdateOrder)
+
+router.route('payment/').get(payment.checkoutVNPay)
 
 module.exports = router
