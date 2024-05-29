@@ -15,7 +15,8 @@ router.route('/')
 router.route('/:id')
       .get(authenticateUser, OrderController.DetailOrder)
       .put(authenticateUser, OrderController.UpdateOrder)
+      .delete(authenticateUser, OrderController.CancelOrder)
 
-router.route('payment/').get(payment.checkoutVNPay)
+router.route('payment/').get(payment.checkOutVNPay)
 
 module.exports = router

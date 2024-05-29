@@ -38,9 +38,21 @@ const UpdateOrder = async(req, res, next) => {
     }
 }
 
+const CancelOrder = async(req, res, next) => {
+    try {
+        const {order} = await OrderService.CancelOrderService({orderId: req.params.id});
+        for(const ele of order.orderitems) {
+            console.log(ele.products)
+        }
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     CreateOrder,
     OrderList,
     DetailOrder,
-    UpdateOrder
+    UpdateOrder,
+    CancelOrder
 }

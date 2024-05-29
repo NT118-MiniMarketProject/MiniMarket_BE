@@ -192,9 +192,6 @@ const UpdateService = async({cartItemId, quantity, price}) => {
 
         const {product} = await ProductService.GetProductByIdService({product_id:  ExistCartItem.product});
 
-        console.log( (price * (quantity - ExistCartItem.quantity)))
-        console.log(ExistCartItem.total)
-
         const data = await prisma.cartItem.update({
             where: {
                cartItem: cartItemId
@@ -206,7 +203,6 @@ const UpdateService = async({cartItemId, quantity, price}) => {
             },
             select
         });
-
 
         const newProductData = {
             quantity: product.quantity +  (ExistCartItem.quantity - quantity)

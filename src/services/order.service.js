@@ -117,9 +117,21 @@ const GetDetailOfOrder = async({orderId}) => {
     }
 }
 
+const CancelOrderService = async({orderId}) => {
+    try {
+
+        const {data: order} = await GetDetailOfOrder({orderId});
+
+        return {order};
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     AddService, 
     GetService,
     GetDetailOfOrder,
-    UpdateService
+    UpdateService,
+    CancelOrderService
 }
