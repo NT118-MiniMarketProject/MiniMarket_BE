@@ -122,7 +122,20 @@ const CancelOrderService = async({orderId}) => {
 
         const {data: order} = await GetDetailOfOrder({orderId});
 
-        return {order};
+        if(order.status != 'Pending')
+            return {msg: `Không thể huỷ đơn hàng`}
+        for(const ele of order.orderitems) {
+            const check = await CartService.CheckSaleItems(ele.products.product_id);
+
+            const {product} = await ProductService.GetProductByIdService({product_id: ele.products.product_id});
+            if(!check) {
+                const newquantity = ele.quantity + product.quantity;
+                await helper.queryProduct.UpdateNewQuantityProduct(newquantity, ExistCartItem.product);
+            } else {
+                
+            }
+        }
+        return {msg: `Huỷ đơn hàng thành công`};
     } catch (err) {
         throw err;
     }
