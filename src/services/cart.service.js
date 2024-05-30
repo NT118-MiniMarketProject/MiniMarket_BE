@@ -279,5 +279,6 @@ module.exports = {
     GetService,
     UpdateQuantityService,
     DeleteService,
-    CheckSaleItems
+    CheckSaleItems,
+    UpdateSalesItem
 }
