@@ -40,10 +40,8 @@ const UpdateOrder = async(req, res, next) => {
 
 const CancelOrder = async(req, res, next) => {
     try {
-        const {order} = await OrderService.CancelOrderService({orderId: req.params.id});
-        for(const ele of order.orderitems) {
-            console.log(ele.products)
-        }
+        const {msg} = await OrderService.CancelOrderService({orderId: req.params.id});
+        res.status(StatusCodes.OK).json({msg});
     } catch (err) {
         next(err);
     }

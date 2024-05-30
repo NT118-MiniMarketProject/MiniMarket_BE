@@ -25,6 +25,7 @@ const CartResponse = () => {
 const CartItemResponse = () => {
     const ProductResponse = ProductCartItemResponse();
     return select = {
+        cartItem: true,
         quantity: true,
         total: true,
         saving: true,

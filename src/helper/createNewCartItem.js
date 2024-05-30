@@ -71,5 +71,5 @@ const ResetCartItem = async ({cartItemId}) => {
 module.exports = {
     createNewCartItem,
     CartItemLoop,
-    ResetCartItem
+    ResetCartItem,
 };

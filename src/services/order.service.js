@@ -122,7 +122,40 @@ const CancelOrderService = async({orderId}) => {
 
         const {data: order} = await GetDetailOfOrder({orderId});
 
-        return {order};
+        if(order.status != 'Pending')
+            return {msg: `Không thể huỷ đơn hàng`}
+        for(const ele of order.orderitems) {
+            const check = await CartService.CheckSaleItems(ele.products.product_id);
+
+            const {product} = await ProductService.GetProductByIdService({product_id: ele.products.product_id});
+            
+            const newquantity = ele.quantity + product.quantity;
+            await helper.queryProduct.UpdateNewQuantityProduct(newquantity, product.product_id);
+
+            if(check){
+                let CheckRemain = check.quantity - check.remain;
+                if(CheckRemain >= ele.quantity)
+                    await CartService.UpdateSalesItem(check.saleItemId, (check.remain + ele.quantity))
+                else {
+                    await CartService.UpdateSalesItem(check.saleItemId, (check.remain + CheckRemain));
+                }
+            }
+
+            await prisma.orderItem.delete({
+                where:{
+                    orderitem_id: ele.orderitem_id,
+                    order_id: orderId,
+                    product: product.product_id
+                }
+            });
+        }
+
+        await prisma.order.delete({
+            where: {
+                order_id: orderId
+            }
+        })
+        return {msg: `Huỷ đơn hàng thành công`};
     } catch (err) {
         throw err;
     }

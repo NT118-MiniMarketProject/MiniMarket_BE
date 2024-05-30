@@ -204,11 +204,8 @@ const UpdateService = async({cartItemId, quantity, price}) => {
             select
         });
 
-        const newProductData = {
-            quantity: product.quantity +  (ExistCartItem.quantity - quantity)
-        };
-            
-        await ProductService.UpdateProductService(newProductData, ExistCartItem.product);
+        const newquantity = product.quantity + (ExistCartItem.quantity - quantity)
+        await helper.queryProduct.UpdateNewQuantityProduct(newquantity, ExistCartItem.product);
 
         return {data};
     } catch (err) {
@@ -225,11 +222,9 @@ const UpdateQuantityService = async({userId, cartItemId, quantity}) => {
         const check = await CheckSaleItems(product.product_id);
 
         if(quantity == 0) {
-            const newProductData = {
-                quantity: product.quantity +  ExistCartItem.quantity
-            };
-
-            await ProductService.UpdateProductService(newProductData, ExistCartItem.product);
+            
+           const newquantity = product.quantity +  ExistCartItem.quantity
+            await helper.queryProduct.UpdateNewQuantityProduct(newquantity, ExistCartItem.product);
 
             if(check) {
                 let CheckRemain = check.quantity - check.remain;
@@ -284,5 +279,6 @@ module.exports = {
     GetService,
     UpdateQuantityService,
     DeleteService,
-    CheckSaleItems
+    CheckSaleItems,
+    UpdateSalesItem
 }
