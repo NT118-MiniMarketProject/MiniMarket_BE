@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-
 const {
     authenticateUser,
     authorizePermissions
@@ -14,5 +13,8 @@ router.route('/showMe').get(authenticateUser, userController.showCurrentUser)
 router.route('/')
       .post(authenticateUser, userController.UpdateUser)
       .get([authenticateUser, authorizePermissions('admin')], userController.GetAllUsers)
+
+router.post('/forgetPassword', userController.ForgetPassword)
+router.post('/updatePassword', authenticateUser ,userController.UpdatePassword)
 
 module.exports = router 
