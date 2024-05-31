@@ -40,9 +40,30 @@ const GetAllUsers = async (req, res, next) => {
   }
 }
 
+const ForgetPassword = async (req, res, next) => {
+  try {
+      const {email} = req.body;
+      const {msg} = await userService.ForgetPasswordService(email);
+      res.status(StatusCodes.OK).json({ msg })
+  } catch (err) { 
+     next(err);
+  }
+}
+
+const UpdatePassword = async (req, res, next) => {
+  try {
+    const {data, msg} = await userService.UpdatePasswordService({userId: req.user.userId, body: req.body});
+    res.status(StatusCodes.OK).json({msg, data});
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
     showCurrentUser,
     UpdateUser,
     UploadAvatar,
-    GetAllUsers
+    GetAllUsers,
+    ForgetPassword,
+    UpdatePassword
 }

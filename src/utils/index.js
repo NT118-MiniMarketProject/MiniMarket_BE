@@ -12,6 +12,8 @@ const {
     uploadImage
 } = require('./uploadFile')
 
+const emailTemplate = require('./Email.template')
+
 module.exports = {
   createJWT,
   isTokenValid,
@@ -23,5 +25,6 @@ module.exports = {
     passwordHash,
     ComparePassword,
     uploadImage,
-    uploadImageConfig
+    uploadImageConfig,
+    emailTemplate
 }
