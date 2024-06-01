@@ -1,7 +1,7 @@
 const cloudinary = require('cloudinary').v2
 const fs = require('fs')
 const prisma = require('../config/prisma.instance')
-const helper = require('../helper')
+const CustomResponse = require('../helper/CustomResponse')
 
 
 const uploadImageConfig = async(file) => {
@@ -29,7 +29,7 @@ const uploadImage = async(uid, file, options) => {
 
     switch(options) {
         case 1: {
-            const select = helper.CustomResponse.UserResponse();
+            const select = CustomResponse.UserResponse();
             console.log('Uploading');
             response = await prisma.user.update({
                 where: {

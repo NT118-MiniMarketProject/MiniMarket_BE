@@ -1,7 +1,8 @@
 const prisma = require('../config/prisma.instance')
 const CustomError = require('../errors')
 const productService = require('../services/product.service')
-const categoryService = require('../services/category.service')
+const getById = require('../helper/GetById')
+const categoryService = require('./category.service')
 
 const GetBrandListService = async({categoryList}) => {
     try {
@@ -27,11 +28,11 @@ const GetBrandListService = async({categoryList}) => {
 const GetBrandByCategoryGroupService = async({categroupId}) => {
     try {
 
-        const {categoryGroup} = await categoryService.getCategoryGroupByIdService({categorygroup: categroupId})
+        const {categoryGroup} = await getById.getCategoryGroupByIdService({categorygroup: categroupId})
         if(!categoryGroup) 
             throw new CustomError.NotFoundError(`Not found category group`)
 
-        const {categoryList} = await categoryService.getCategoryListByCategoryGroupService({categroupId});
+        const {categoryList} = await getById.getCategoryListByCategoryGroupService({categroupId});
 
         const {brandList} = await GetBrandListService({categoryList})
 
@@ -45,7 +46,7 @@ const GetBrandByCategoryGroupService = async({categroupId}) => {
 
 const GetBrandByCategoryService = async({categoryId}) => {
     try {
-        const {category} = await categoryService.getCategoryByIdService({category_id: categoryId});
+        const {category} = await getById.getCategoryByIdService({category_id: categoryId});
         if(!category) 
             throw new CustomError.NotFoundError(`Not found category id`)
         
@@ -60,21 +61,7 @@ const GetBrandByCategoryService = async({categoryId}) => {
     }
 }
 
-const GetBrandByIdService = async({brandId}) => {
-    try {
-        const brand = await prisma.brand.findFirst({
-            where: {
-                brand_id: brandId
-            }
-        });
-        return {brand};
-    } catch (err) {
-        throw err 
-    }
-}
-
 module.exports = {
     GetBrandByCategoryGroupService,
-    GetBrandByCategoryService,
-    GetBrandByIdService
+    GetBrandByCategoryService
 }

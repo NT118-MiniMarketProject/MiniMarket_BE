@@ -1,9 +1,8 @@
 const prisma = require('../config/prisma.instance');
 const CustomError = require('../errors')
-const helper = require('../helper')
+const queryProduct = require('../helper/RequestQueryProduct')
 const utils = require('../utils')
-const categoryService = require('./category.service')
-const brandService = require('./brand.service')
+const getById = require('../helper/GetById')
 
 
 //Common
@@ -24,10 +23,10 @@ const GetProductByIdService = async({product_id}) => {
 //search 
 const GetProductsService = async(query) => {
     try {
-        const where = {...helper.queryProduct.SearchQuery(query)}
+        const where = {...queryProduct.SearchQuery(query)}
         // console.log(where)
 
-        const orderBy = helper.queryProduct.QuerySort(query.sort)
+        const orderBy = queryProduct.QuerySort(query.sort)
         // console.log(orderBy)
 
         const page = Number(query.page) || 1;
@@ -183,11 +182,11 @@ const CreateBodyService = async({body, file = null}) => {
             is_feature,
         } = body;
 
-        const {category} = await categoryService.getCategoryByIdService({category_id: c_id});
+        const {category} = await getById.getCategoryByIdService({category_id: c_id});
         if(!category) 
             throw new CustomError.BadRequestError(`category_id doesnt exist`);
 
-        const {brand} = await brandService.GetBrandByIdService({brandId: br_id});
+        const {brand} = await getById.GetBrandByIdService({brandId: br_id});
         if(!brand) 
             throw new CustomError.BadRequestError(`brand_id doesnt exist`);
 
@@ -196,6 +195,7 @@ const CreateBodyService = async({body, file = null}) => {
             throw new CustomError.BadRequestError(`Name already exists`)
 
         let image;
+        console.log(1)
         if(file){
             image = await utils.uploadImageConfig(file);
         }

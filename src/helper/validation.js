@@ -10,7 +10,7 @@ const registerValidate = (data) => {
     return accountSchema.validate(data)
 }
 
-const loginValidate = (data) => {
+const loginValidate = async (data) => {
     const accountSchema = joi.object({
         email: joi.string().email().lowercase().required(), 
         password: joi.string().min(8).max(32).required(),
