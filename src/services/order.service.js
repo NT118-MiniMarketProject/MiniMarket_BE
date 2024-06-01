@@ -130,7 +130,7 @@ const CancelOrderService = async({orderId}) => {
             const {product} = await ProductService.GetProductByIdService({product_id: ele.products.product_id});
             
             const newquantity = ele.quantity + product.quantity;
-            await helper.queryProduct.UpdateNewQuantityProduct(newquantity, product.product_id);
+            await helper.UpdateQuantity.UpdateNewQuantityProduct(newquantity, product.product_id);
 
             if(check){
                 let CheckRemain = check.quantity - check.remain;

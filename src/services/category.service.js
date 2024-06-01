@@ -1,40 +1,15 @@
 const prisma = require('../config/prisma.instance')
 const CustomError = require('../errors')
-const helper = require('../helper')
+const modifiedCate = require('../helper/modifiedCategoryRes')
 const productService = require('./product.service')
 const utils = require('../utils')
+const getById = require('../helper/GetById')
 
 
 const GetAllCategoryService = async() => {
     try {
         const categories = await prisma.category.findMany()
         return {categories: categories}
-    } catch (err) {
-        throw err
-    }
-}
-
-const getCategoryByIdService = async({category_id}) => {
-    try {
-        const category = await prisma.category.findFirst({
-            where: {
-                category_id: category_id
-            }
-        })
-        return {category: category}
-    } catch (err) {
-        throw err
-    }
-}
-
-const getCategoryGroupByIdService = async ({categorygroup}) => {
-    try {
-        const CategoryGroup = await prisma.category_Group.findUnique({
-            where: {
-                categroup_id: categorygroup
-            }
-        })
-        return {categoryGroup: CategoryGroup}
     } catch (err) {
         throw err
     }
@@ -144,7 +119,7 @@ const CategoryByCateGroupService = async({ categroupId }) => {
     try {
         let categoryByGroup;
         if(categroupId) {
-            const {categoryGroup} = await getCategoryGroupByIdService({categorygroup: categroupId});
+            const {categoryGroup} = await getById.getCategoryGroupByIdService({categorygroup: categroupId});
 
             if(!categoryGroup) 
                 throw new CustomError.NotFoundError(`Not found category group`);
@@ -166,7 +141,7 @@ const CategoryByCateGroupService = async({ categroupId }) => {
                 }
             });
         }
-        const modifiedCategoryByGroup = helper.modifyCategoryByGroup(categoryByGroup);
+        const modifiedCategoryByGroup = modifiedCate.modifyCategoryByGroup(categoryByGroup);
         return { categoryByGroup: modifiedCategoryByGroup };
     } catch (err) {
         throw err
@@ -175,7 +150,7 @@ const CategoryByCateGroupService = async({ categroupId }) => {
 
 const getProductByCategoryGroupService = async({categroupId, query}) => {
     try {
-        const {categoryGroup} = await getCategoryGroupByIdService({categorygroup: categroupId});
+        const {categoryGroup} = await getById.getCategoryGroupByIdService({categorygroup: categroupId});
 
         if(!categoryGroup) 
             throw new CustomError.NotFoundError(`Not found category group`);
@@ -194,8 +169,6 @@ const getProductByCategoryGroupService = async({categroupId, query}) => {
 module.exports = {
     GetAllCategoryService, 
     createCategorService, 
-    getCategoryGroupByIdService,
-    getCategoryByIdService,
     createCategorGroupService,
     GetAllCateGroupService,
     CategoryByCateGroupService,

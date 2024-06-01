@@ -23,7 +23,6 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
     try {
         const body = req.body
-        //vaiidate data
         const isFalse = await helper.loginValidate(body)
         if(isFalse.error) {
             throw new CustomError.BadRequestError(isFalse.error.message);

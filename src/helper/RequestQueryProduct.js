@@ -1,4 +1,4 @@
-const ProductService = require('../services/product.service')
+// const ProductService = require('../services/product.service')
 
 const SearchQuery = (query) => {
     const where = {};
@@ -63,15 +63,7 @@ const QuerySort = (sort) => {
     return orderBy;
 }
 
-const UpdateNewQuantityProduct = async (quantity, id) => {
-    const newProductData = {
-            quantity
-        };
-        await ProductService.UpdateProductService(newProductData, id);
-}
-
 module.exports = {
-    SearchQuery,
     QuerySort,
-    UpdateNewQuantityProduct
+    SearchQuery
 }

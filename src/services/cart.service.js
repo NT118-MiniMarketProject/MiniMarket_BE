@@ -205,7 +205,7 @@ const UpdateService = async({cartItemId, quantity, price}) => {
         });
 
         const newquantity = product.quantity + (ExistCartItem.quantity - quantity)
-        await helper.queryProduct.UpdateNewQuantityProduct(newquantity, ExistCartItem.product);
+        await helper.UpdateQuantity.UpdateNewQuantityProduct(newquantity, ExistCartItem.product);
 
         return {data};
     } catch (err) {
@@ -224,7 +224,7 @@ const UpdateQuantityService = async({userId, cartItemId, quantity}) => {
         if(quantity == 0) {
             
            const newquantity = product.quantity +  ExistCartItem.quantity
-            await helper.queryProduct.UpdateNewQuantityProduct(newquantity, ExistCartItem.product);
+            await helper.UpdateQuantity.UpdateNewQuantityProduct(newquantity, ExistCartItem.product);
 
             if(check) {
                 let CheckRemain = check.quantity - check.remain;

@@ -2,6 +2,7 @@ const categoryService = require('../services/category.service')
 const {StatusCodes} = require('http-status-codes')
 const CustomError = require('../errors')
 const utils = require('../utils')
+const getById = require('../helper/GetById')
 
 const GetAllCategory = async (req, res, next) => {
     try {
@@ -18,7 +19,7 @@ const CreateCategory = async (req, res, next) => {
         const body = req.body
         body.categroup = parseInt(body.categroup, 10);
         const file = req.files ? req.files.image.tempFilePath : null;
-        const {categoryGroup} = await categoryService.getCategoryGroupByIdService({categorygroup: body.categroup})
+        const {categoryGroup} = await getById.getCategoryGroupByIdService({categorygroup: body.categroup})
 
         if(!categoryGroup) {
             throw new CustomError.BadRequestError(`Invalid category group`)
