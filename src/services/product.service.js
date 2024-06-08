@@ -195,7 +195,6 @@ const CreateBodyService = async({body, file = null}) => {
             throw new CustomError.BadRequestError(`Name already exists`)
 
         let image;
-        console.log(1)
         if(file){
             image = await utils.uploadImageConfig(file);
         }
