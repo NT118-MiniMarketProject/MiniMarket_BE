@@ -50,7 +50,38 @@ const GetSaleItemsService = async (saleEventId) => {
     }
 }
 
+// Add a new sale event
+const AddSaleEvent = async ({name, description, startTime, endTime, is_visible}) => {
+    try {
+        const checkExist = await prisma.saleEvent.findFirst({
+            where: {
+                nameEvent: name
+            }
+        })
+        if (checkExist) {
+            throw new CustomError.BadRequestError('Sale event name already exists')
+        }
+        if (new Date(endTime) <= new Date(startTime)) {
+            throw new CustomError.BadRequestError('End time must be greater than start time');
+        }
+        const saleEvent = await prisma.saleEvent.create({
+            data: {
+              nameEvent: name,
+              description,
+              startTime: new Date(startTime),
+              endTime: new Date(endTime),
+              is_visible,
+            },
+        });
+        return {saleEvent: saleEvent}
+    }
+    catch (err) {
+        throw err
+    }
+}
+
 module.exports = {
     GetSalesService,
-    GetSaleItemsService
+    GetSaleItemsService,
+    AddSaleEvent
 }
