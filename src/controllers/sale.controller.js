@@ -20,7 +20,18 @@ const getSaleItems = async (req, res, next) => {
         next(err)
     }
 }
+
+const addSaleEvent = async (req, res, next) => {
+    try {
+        const {saleEvent} = await SaleService.AddSaleEvent(req.body)
+        res.status(StatusCodes.OK).json({saleEvent: saleEvent})
+    }
+    catch (err) {
+        next(err)
+    }
+}
 module.exports = {
     getSales,
-    getSaleItems
+    getSaleItems,
+    addSaleEvent
 }
