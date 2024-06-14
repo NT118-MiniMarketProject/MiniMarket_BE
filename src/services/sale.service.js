@@ -80,8 +80,107 @@ const AddSaleEvent = async ({name, description, startTime, endTime, is_visible})
     }
 }
 
+// Delete a sale event
+const DeleteSaleEvent = async (name) => {
+    try {
+        const checkExist = await prisma.saleEvent.findFirst({
+            where: {
+                nameEvent: name
+            }
+        })
+        if (!checkExist) {
+            throw new CustomError.BadRequestError('Sale event name not exist')
+        }
+        await prisma.saleEvent.deleteMany({
+            where: {
+                nameEvent: name
+            }
+        });
+        return {msg: 'Sale event deleted'}
+    }
+    catch (err)
+    {
+        throw err
+    }
+} 
+
+// Quarter statistics
+const QuarterStatistics = async ({quarter, year}) => {
+    try {
+        const startMonth = (quarter - 1) * 3 + 1;
+        const endMonth = startMonth + 2;
+        const startDate = new Date(year, startMonth - 1, 1);
+        const endDate = new Date(year, endMonth, 0);
+        
+        const totalOrders = await prisma.order.count({
+            where: {
+                created_at: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            }
+        })
+
+        if (totalOrders <= 0)
+        {
+            throw new CustomError.BadRequestError('No order in this quarter')
+        }
+        
+        const totalOrderRevenue = await prisma.order.aggregate({
+            _sum: {
+                total: true
+            },
+            where: {
+                created_at: {
+                    gte: startDate,
+                    lte: endDate
+                }
+            }
+        })
+
+        const popularProduct = await prisma.orderItem.groupBy({
+            by: ['product'],
+            _sum: {
+                quantity: true
+            },
+            orderBy: {
+                _sum: {
+                  quantity: 'desc',
+                },
+            },
+            take: 1,
+            where: {
+                order: {
+                    created_at: {
+                        gte: startDate,
+                        lte: endDate
+                    }
+                }
+            }
+        })
+        const prod = await prisma.product.findUnique({
+            where: {
+              product_id: popularProduct[0].product,
+            },
+        });
+
+        const stats = {
+            totalOrders: totalOrders,
+            totalRevenue: totalOrderRevenue['_sum']['total'],
+            popularProduct: prod
+        }
+        return {stats: stats}
+    }
+    catch (err)
+    {
+        throw err
+    }
+}
+
 module.exports = {
     GetSalesService,
     GetSaleItemsService,
-    AddSaleEvent
+    AddSaleEvent,
+    DeleteSaleEvent,
+    QuarterStatistics
 }

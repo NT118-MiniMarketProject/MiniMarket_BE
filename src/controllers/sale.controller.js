@@ -30,8 +30,31 @@ const addSaleEvent = async (req, res, next) => {
         next(err)
     }
 }
+
+const deleteSaleEvent = async (req, res, next) => {
+    try {
+        console.log(req.body)
+        const msg = await SaleService.DeleteSaleEvent(req.body.name)
+        res.status(StatusCodes.OK).json(msg)
+    }
+    catch (err) {
+        next(err)
+    }
+}
+
+const quarterStats = async (req, res, next) => {
+    try {
+        const {stats} = await SaleService.QuarterStatistics(req.body)
+        res.status(StatusCodes.OK).json({stats: stats})
+    }
+    catch (err) {
+        next(err)
+    }
+}
 module.exports = {
     getSales,
     getSaleItems,
-    addSaleEvent
+    addSaleEvent,
+    deleteSaleEvent,
+    quarterStats
 }
