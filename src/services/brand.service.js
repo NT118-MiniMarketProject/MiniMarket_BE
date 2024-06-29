@@ -61,7 +61,17 @@ const GetBrandByCategoryService = async({categoryId}) => {
     }
 }
 
+const GetAllBrand = async() => {
+    try {
+        const data = await prisma.brand.findMany();
+        return {data};
+    } catch(err) {
+        throw err
+    }
+}
+
 module.exports = {
     GetBrandByCategoryGroupService,
-    GetBrandByCategoryService
+    GetBrandByCategoryService,
+    GetAllBrand
 }
