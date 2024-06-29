@@ -7,6 +7,7 @@ const {
     ComparePassword
 } = require('../utils')
 const crypto = require('crypto')
+const utils = require('../utils');
 
 const CreateUser = async({body, res}) => {
     try {
@@ -35,6 +36,8 @@ const CreateUser = async({body, res}) => {
         const tokenUser = createTokenUser(saveUser)
 
         attachCookiesToResponse({res, user: tokenUser})
+
+        await utils.emailTemplate.WelcomeEmail({user: saveUser});
 
         return {user: tokenUser}
     } catch (err) {
@@ -146,11 +149,32 @@ const logout = async (user, res) => {
     }
 }
 
+const sendOTP = async ({email}) => {
+    try {
+        const otp = Math.floor(Math.random() * 9000) + 1000;
+        console.log(otp)
+        const OTPSend = await prisma.oTP.create({
+            data: {
+                user_email: email,
+                otp_value: otp
+            }
+        })
+
+        await utils.emailTemplate.sendOTPForCustomer({OTPSend});
+
+        return {data: OTPSend.otp_value}
+
+    } catch(err) {
+        throw err
+    }
+}
+ 
 
 module.exports = {
     CreateUser,
     loginService,
     getUserById,
     updateUserById,
-    logout
+    logout,
+    sendOTP
 }

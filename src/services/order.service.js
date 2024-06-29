@@ -3,6 +3,7 @@ const CustomError = require('../errors')
 const CartService = require('./cart.service')
 const ProductService = require('./product.service')
 const helper = require('../helper')
+const utils = require('../utils')
 
 const AddService = async({body, userId}) => {
     try {
@@ -53,6 +54,14 @@ const AddService = async({body, userId}) => {
         let { data: NewOrder } = await GetDetailOfOrder({ orderId: order.order_id });
         
         const {data} = await helper.OrderHelper.OrderItemLoop({order: NewOrder, select});
+
+        const userData = await prisma.user.findFirst({
+            where: {
+                id: userId
+            }
+        })
+
+        await utils.emailTemplate.EmailCreateOrder({data, userData})
 
         await prisma.cart.delete({
             where: {

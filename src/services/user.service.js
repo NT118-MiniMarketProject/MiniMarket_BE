@@ -87,9 +87,9 @@ const GetAllUsersService = async() => {
     }
 }
 
-const ForgetPasswordService = async(email) => {
+const ForgetPasswordService = async({body}) => {
     try {
-
+        const {email, newPass, oldPass} = body;
         if(!email) 
             throw new CustomError.BadRequestError('Please provide valid email');
 
@@ -102,24 +102,23 @@ const ForgetPasswordService = async(email) => {
         if(!user) 
             throw new CustomError.NotFoundError(`Not found ${email}`);
 
-        const RandomString = generateRandomString(8);
-        const hassPassword = await utils.passwordHash(RandomString);
+        const isPasswordCorrect = await utils.ComparePassword(oldPass, user.password);
+        if(!isPasswordCorrect)
+            throw new CustomError.UnauthenticatedError('Wrong password')
 
-        const newData = {
-            password: hassPassword
-        }
-
+        const hassPassword = await utils.passwordHash(newPass);
         const data = await prisma.user.update({
             where: {
                 id: user.id
             },
-            data: newData
+            data: {
+                password: hassPassword
+            }
         });
 
         await utils.emailTemplate.forgotPasswordEmail({
             name: data.name,
             email: data.email,
-            newPass: RandomString
         })
         
         return {msg: 'Please check your email for reset password'}
