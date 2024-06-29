@@ -22,7 +22,17 @@ const GetBrandByCategory = async(req, res, next) => {
     }
 }
 
+const GetAllBrand = async(req, res, next) => {
+    try {
+        const {data} = await brandService.GetAllBrand();
+        res.status(StatusCodes.OK).json({data: data});
+    } catch (err) {
+        next(err)
+    }
+}
+
 module.exports = {
     GetBrandByCategory,
-    GetBrandByCategoryGroup
+    GetBrandByCategoryGroup,
+    GetAllBrand
 }
