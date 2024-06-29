@@ -42,8 +42,8 @@ const GetAllUsers = async (req, res, next) => {
 
 const ForgetPassword = async (req, res, next) => {
   try {
-      const {email} = req.body;
-      const {msg} = await userService.ForgetPasswordService(email);
+      const body = req.body;
+      const {msg} = await userService.ForgetPasswordService({body});
       res.status(StatusCodes.OK).json({ msg })
   } catch (err) { 
      next(err);

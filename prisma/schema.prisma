@@ -197,6 +197,12 @@ model SaleItem {
   remain      Int?      @default(0)
 }
 
+model OTP {
+  user_email String @id @unique
+  otp_value  Int    
+  createdAt  DateTime @default(now())
+}
+
 enum UserType {
   admin
   customer

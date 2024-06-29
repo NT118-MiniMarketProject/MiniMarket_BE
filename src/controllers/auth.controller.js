@@ -41,13 +41,23 @@ const logout = async (req, res, next) => {
         const { msg } = await AuthService.logout(user, res);
         res.status(StatusCodes.OK).json({ msg: msg });
     } catch(err) {
-        // Xử lý lỗi mà không sử dụng biến res
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ error: err.message });
+    }
+}
+
+const sendOTP = async (req, res, next) => {
+    try {
+        const body = req.body;
+        const {data} = await AuthService.sendOTP({email: body.email});
+        res.status(StatusCodes.OK).json({data: data});
+    } catch (err) {
+        next(err)
     }
 }
 
 module.exports = {
     register,
     login,
-    logout
+    logout, 
+    sendOTP
 }
