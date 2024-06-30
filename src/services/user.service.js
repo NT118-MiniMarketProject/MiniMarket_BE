@@ -89,7 +89,7 @@ const GetAllUsersService = async() => {
 
 const ForgetPasswordService = async({body}) => {
     try {
-        const {email, newPass, oldPass} = body;
+        const {email, newPass} = body;
         if(!email) 
             throw new CustomError.BadRequestError('Please provide valid email');
 
@@ -102,10 +102,6 @@ const ForgetPasswordService = async({body}) => {
         if(!user) 
             throw new CustomError.NotFoundError(`Not found ${email}`);
 
-        const isPasswordCorrect = await utils.ComparePassword(oldPass, user.password);
-        if(!isPasswordCorrect)
-            throw new CustomError.UnauthenticatedError('Wrong password')
-
         const hassPassword = await utils.passwordHash(newPass);
         const data = await prisma.user.update({
             where: {
@@ -115,6 +111,12 @@ const ForgetPasswordService = async({body}) => {
                 password: hassPassword
             }
         });
+
+        await prisma.oTP.delete({
+            where: {
+                user_email: email
+            }
+        })
 
         await utils.emailTemplate.forgotPasswordEmail({
             name: data.name,
