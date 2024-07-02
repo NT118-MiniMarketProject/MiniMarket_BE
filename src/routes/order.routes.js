@@ -12,9 +12,11 @@ router.route('/')
       .post(authenticateUser, OrderController.CreateOrder)
       .get(authenticateUser, OrderController.OrderList)
 
+router.route('/getAll').get([authenticateUser, authorizePermissions('admin')], OrderController.getAllOrdersForAdmin)
+
 router.route('/:id')
       .get(authenticateUser, OrderController.DetailOrder)
-      .put(authenticateUser, OrderController.UpdateOrder)
+      .put([authenticateUser, authorizePermissions('admin')], OrderController.UpdateOrder)
       .delete(authenticateUser, OrderController.CancelOrder)
 
 router.route('payment/').get(payment.checkOutVNPay)

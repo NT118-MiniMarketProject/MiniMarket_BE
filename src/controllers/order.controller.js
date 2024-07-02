@@ -47,10 +47,20 @@ const CancelOrder = async(req, res, next) => {
     }
 }
 
+const getAllOrdersForAdmin = async(req, res, next) => {
+    try {
+        const {data} = await OrderService.getAllOrdersForAdmin();
+        res.status(StatusCodes.OK).json({data});
+    } catch(err) {
+        next(err);
+    }
+}
+
 module.exports = {
     CreateOrder,
     OrderList,
     DetailOrder,
     UpdateOrder,
-    CancelOrder
+    CancelOrder,
+    getAllOrdersForAdmin
 }
