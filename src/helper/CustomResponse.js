@@ -54,6 +54,7 @@ const OrderResponse = () => {
         note: true,
         status: true,
         payment_method: true,
+        created_at: true,
         orderitems: {
             select: orderItemResponse
         }

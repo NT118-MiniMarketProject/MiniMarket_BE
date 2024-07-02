@@ -170,10 +170,24 @@ const CancelOrderService = async({orderId}) => {
     }
 }
 
+const getAllOrdersForAdmin = async() => {
+    try {
+        const select = helper.CustomResponse.OrderResponse();
+        const data = await prisma.order.findMany({
+            select
+        });
+        return {data}
+
+    } catch(err) {
+        throw err;
+    }
+}
+
 module.exports = {
     AddService, 
     GetService,
     GetDetailOfOrder,
     UpdateService,
-    CancelOrderService
+    CancelOrderService,
+    getAllOrdersForAdmin
 }
