@@ -17,7 +17,7 @@ router.route('/getAll').get([authenticateUser, authorizePermissions('admin')], O
 router.route('/:id')
       .get(authenticateUser, OrderController.DetailOrder)
       .put([authenticateUser, authorizePermissions('admin')], OrderController.UpdateOrder)
-      .delete(authenticateUser, OrderController.CancelOrder)
+      .delete([authenticateUser, authorizePermissions('customer')], OrderController.CancelOrder)
 
 router.route('payment/').get(payment.checkOutVNPay)
 
