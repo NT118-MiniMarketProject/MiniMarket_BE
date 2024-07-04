@@ -163,10 +163,10 @@ const QuarterStatistics = async ({quarter, year}) => {
               product_id: popularProduct[0].product,
             },
         });
-
         const stats = {
             totalOrders: totalOrders,
             totalRevenue: totalOrderRevenue['_sum']['total'],
+            popularProductBoughtTimes: popularProduct[0]['_sum']['quantity'],
             popularProduct: prod
         }
         return {stats: stats}
