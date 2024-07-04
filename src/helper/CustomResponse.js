@@ -55,6 +55,7 @@ const OrderResponse = () => {
         status: true,
         payment_method: true,
         created_at: true,
+        user_id: true,
         orderitems: {
             select: orderItemResponse
         }

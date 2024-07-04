@@ -56,11 +56,21 @@ const getAllOrdersForAdmin = async(req, res, next) => {
     }
 }
 
+const cancelOrderAdm = async (req, res, next) => {
+    try {
+        const {msg} = await OrderService.CancelOrderAdmin({userId: req.body.userId, orderId: req.params.id});
+        res.status(StatusCodes.OK).json({msg});
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     CreateOrder,
     OrderList,
     DetailOrder,
     UpdateOrder,
     CancelOrder,
-    getAllOrdersForAdmin
+    getAllOrdersForAdmin,
+    cancelOrderAdm
 }

@@ -211,9 +211,30 @@ const WelcomeEmail = async({user}) => {
     }
 }
 
+const EmailCancelOrder = async({orderId, userData}) => {
+    let message = `
+        <p>Xin chào ${userData.name},</p>
+        <p>Cảm ơn bạn đã đặt hàng tại cửa hàng chúng tôi.</p>
+        <p>Tuy nhiên trong quá trình xử lý thì đơn đặt hàng của bạn <strong>(${orderId})</strong> đã xảy ra lỗi nên buộc lòng chúng tôi phải hủy bỏ.</p>
+        <p>Chúng tôi rất xin lỗi vì sự bất tiện này. Hy vọng bạn vẫn đồng hành và lựa chọn các sản phẩm bên cửa hàng của chúng tôi.</p>
+        <p>Xin cảm ơn và chúc bạn một ngày tốt lành!</p>
+    `;
+    try {
+        return sendEmail({
+            to: userData.email,
+            subject: `Đơn hàng ${orderId} xảy ra lỗi`,
+            html: message,
+        })
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+}
+
 module.exports = {
     forgotPasswordEmail,
     EmailCreateOrder,
     sendOTPForCustomer,
-    WelcomeEmail
+    WelcomeEmail,
+    EmailCancelOrder
 }

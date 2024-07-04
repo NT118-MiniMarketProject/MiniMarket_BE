@@ -131,7 +131,7 @@ const CancelOrderService = async({orderId}) => {
 
         const {data: order} = await GetDetailOfOrder({orderId});
 
-        if(order.status != 'Pending')
+        if(order.status != 'Delivered')
             return {msg: `Không thể huỷ đơn hàng`}
         for(const ele of order.orderitems) {
             const check = await CartService.CheckSaleItems(ele.products.product_id);
@@ -170,6 +170,22 @@ const CancelOrderService = async({orderId}) => {
     }
 }
 
+const CancelOrderAdmin = async ({userId, orderId}) => {
+    try {
+        const userData = await prisma.user.findFirst({
+            where: {
+                id: userId
+            }
+        })
+        const msg = await CancelOrderService({orderId})
+        await utils.emailTemplate.EmailCancelOrder({orderId, userData})
+        return {msg};
+    }
+    catch (err) {
+        throw err;
+    }
+}
+
 const getAllOrdersForAdmin = async() => {
     try {
         const select = helper.CustomResponse.OrderResponse();
@@ -189,5 +205,6 @@ module.exports = {
     GetDetailOfOrder,
     UpdateService,
     CancelOrderService,
-    getAllOrdersForAdmin
+    getAllOrdersForAdmin,
+    CancelOrderAdmin
 }
