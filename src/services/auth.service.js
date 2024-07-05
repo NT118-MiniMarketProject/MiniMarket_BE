@@ -168,7 +168,42 @@ const sendOTP = async ({email}) => {
         throw err
     }
 }
- 
+
+const LoginWithGoogleService = async({body, res}) => {
+    let saveUser;
+    try {
+        const {displayName, email, avatar} = body;
+        let GGUser = await prisma.user.findFirst({
+            where: {
+                email: email,
+                googleId: true
+            }
+        })
+
+        if(!GGUser) {
+            const data = {
+                email,
+                name: displayName,
+                role: 'customer',
+                googleId: true,
+                avater: avatar
+            }
+            saveUser = await prisma.user.create({
+                data
+            })
+        } else {
+            saveUser = GGUser;
+        }
+
+        const tokenUser = createTokenUser(saveUser)
+
+        attachCookiesToResponse({res, user: tokenUser})
+
+        return {user: tokenUser}
+    } catch (err) {
+        throw err
+    }
+}
 
 module.exports = {
     CreateUser,
@@ -176,5 +211,6 @@ module.exports = {
     getUserById,
     updateUserById,
     logout,
-    sendOTP
+    sendOTP,
+    LoginWithGoogleService
 }

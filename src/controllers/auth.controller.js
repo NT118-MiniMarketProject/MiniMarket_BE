@@ -55,9 +55,20 @@ const sendOTP = async (req, res, next) => {
     }
 }
 
+const LoginWithGoogle = async(req, res, next) => {
+    try {
+         const body = req.body;
+         const {user} = await AuthService.LoginWithGoogleService({body, res});
+         res.status(StatusCodes.OK).json({user: user})
+    } catch (err) {
+        next(err)
+    }
+}
+
 module.exports = {
     register,
     login,
     logout, 
-    sendOTP
+    sendOTP,
+    LoginWithGoogle
 }

@@ -15,8 +15,8 @@ const GetAllReview = async(req, res, next) => {
 const CreateReview = async(req, res, next) => {
     try {
         const {userId} = req.user
-        const product_id = req.params.id
-        const {data} = await ReviewService.CreateReviewForProductService({userId, product_id, body: req.body});
+        const orderitem_id = parseInt(req.params.id)
+        const {data} = await ReviewService.CreateReviewForProductService({userId, orderitem_id, body: req.body});
         res.status(StatusCodes.OK).json({data})
     } catch (err) {
         next(err)
