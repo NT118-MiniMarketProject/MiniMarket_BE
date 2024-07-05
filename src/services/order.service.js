@@ -131,7 +131,7 @@ const CancelOrderService = async({orderId}) => {
 
         const {data: order} = await GetDetailOfOrder({orderId});
 
-        if(order.status != 'Delivered')
+        if(order.status == 'Delivered')
             return {msg: `Không thể huỷ đơn hàng`}
         for(const ele of order.orderitems) {
             const check = await CartService.CheckSaleItems(ele.products.product_id);
