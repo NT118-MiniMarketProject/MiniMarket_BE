@@ -70,6 +70,7 @@ const OrderItemResponse = () => {
         quantity: true,
         total: true,
         fromEvent: true,
+        IsReview: true,
         products: {
             select: ProductResponse
         }
@@ -80,5 +81,6 @@ module.exports = {
     UserResponse,
     CartResponse, 
     CartItemResponse,
-    OrderResponse
+    OrderResponse,
+    OrderItemResponse
 }
