@@ -1,5 +1,7 @@
 require('dotenv').config()
 require('express-async-error')
+const { Server } = require('socket.io');
+const http = require('http');
 
 const express = require('express');
 const app = express();
@@ -49,13 +51,39 @@ app.use(errorHandlerMiddleware)
 
 const port = process.env.PORT || 5000
 
+const server = http.createServer(app);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+io.on('connection', (socket) => {
+    console.log('a user connected');
+
+    socket.on('join_room', (room) => {
+        socket.join(room);
+        console.log(`User joined room: ${room}`);
+    });
+
+    socket.on('send_message', (data) => {
+        io.to(data.room).emit('receive_message', data);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('user disconnected');
+    });
+});
+
 const start = async () => {
     try {
-        app.listen(port, () => {
-            console.log(`listening on port ${port}` );
-        })
+        server.listen(port, () => {
+            console.log(`listening on port ${port}`);
+        });
     } catch (err) {
-        console.log(err)
+        console.log(err);
     }
 }
-start()
+
+start();
