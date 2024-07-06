@@ -9,6 +9,7 @@ const ReviewRouter = require('./review.routes')
 const CartRouter = require('./cart.routes')
 const salesRouter = require('./sale.routes')
 const OrderRouter = require('./order.routes')
+const PaymentRouter = require('./payment.routes')
 
 router.use('/auth', authRouter)
 router.use('/product', productRouter)
@@ -19,5 +20,6 @@ router.use('/reviews', ReviewRouter)
 router.use('/cart', CartRouter)
 router.use('/sales', salesRouter)
 router.use('/order', OrderRouter)
+router.use('/payment', PaymentRouter)
 
 module.exports = router
