@@ -216,6 +216,7 @@ enum OrderType {
   Shipped
   Delivered
   Cancelled
+  PaidNotDelivered
 }
 
 enum PaymentType {
