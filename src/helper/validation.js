@@ -5,7 +5,8 @@ const registerValidate = (data) => {
         email: joi.string().email().lowercase().required(), 
         name: joi.string().required(),
         password: joi.string().min(8).max(32).required(),
-        phone: joi.string().pattern(/^(0\d{9})$/).required()
+        phone: joi.string().pattern(/^(0\d{9})$/).required(),
+        otp_user: joi.number()
     });
     return accountSchema.validate(data)
 }
