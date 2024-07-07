@@ -3,16 +3,6 @@ const helper = require('../helper')
 const utils = require('../utils')
 const CustomError = require('../errors')
 
-function generateRandomString(length) {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-        const randomIndex = Math.floor(Math.random() * characters.length);
-        result += characters.charAt(randomIndex);
-    }
-    return result;
-}
-
 const ProfileService = async({userId}) => {
     try {
         const select = helper.CustomResponse.UserResponse();

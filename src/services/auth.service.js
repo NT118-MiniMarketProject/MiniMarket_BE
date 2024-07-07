@@ -11,7 +11,7 @@ const utils = require('../utils');
 
 const CreateUser = async({body, res}) => {
     try {
-        const {email, password, name, phone} = body
+        const {email, password, name, phone , otp_user} = body
 
         const emailAlreadyExists = await prisma.user.findUnique({where: {email}})
         if(emailAlreadyExists) {
@@ -22,6 +22,11 @@ const CreateUser = async({body, res}) => {
         const role = isFirstAccount ? 'admin' : 'customer'
 
         const hassPassword = await passwordHash(password)
+
+        if(!otp_user) {
+            const {data: otp} = await sendOTP({email})
+            return {user: otp}
+        }
         
         const saveUser = await prisma.user.create({
             data: {
@@ -33,11 +38,28 @@ const CreateUser = async({body, res}) => {
             }
         })
 
+        const check = await prisma.oTP.findFirst({
+            where: {
+                user_email: email,
+                otp_value: otp_user
+            }
+        })
+
+        if(!check) {
+            throw new CustomError.BadRequestError(`Something bad happened`)
+        }
+
         const tokenUser = createTokenUser(saveUser)
 
         attachCookiesToResponse({res, user: tokenUser})
 
         await utils.emailTemplate.WelcomeEmail({user: saveUser});
+
+        await prisma.oTP.delete({
+            where: {
+                user_email: email
+            }
+        })
 
         return {user: tokenUser}
     } catch (err) {
