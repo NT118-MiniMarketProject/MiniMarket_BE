@@ -4,6 +4,7 @@ const CartService = require('./cart.service')
 const ProductService = require('./product.service')
 const helper = require('../helper')
 const utils = require('../utils')
+const redis = require('../config/redis')
 
 const AddService = async({body, userId}) => {
     try {
@@ -105,6 +106,10 @@ const UpdateService = async({orderId, body}) => {
             data: Newdata
         });
 
+        const redisClient = redis.connectToRedis();
+        const redisKey = `orders:orderAdmin`;
+        await redisClient.del(redisKey);
+
         return {data};
     } catch (err) {
         throw err;
@@ -164,6 +169,11 @@ const CancelOrderService = async({orderId}) => {
                 order_id: orderId
             }
         })
+
+        const redisClient = redis.connectToRedis();
+        const redisKey = `orders:orderAdmin`;
+        await redisClient.del(redisKey);
+
         return {msg: `Huỷ đơn hàng thành công`};
     } catch (err) {
         throw err;
@@ -179,6 +189,11 @@ const CancelOrderAdmin = async ({userId, orderId}) => {
         })
         const msg = await CancelOrderService({orderId})
         await utils.emailTemplate.EmailCancelOrder({orderId, userData})
+
+        //delete cache
+        const redisClient = redis.connectToRedis();
+        const redisKey = `orders:orderAdmin`;
+        await redisClient.del(redisKey);
         return {msg};
     }
     catch (err) {
@@ -188,10 +203,20 @@ const CancelOrderAdmin = async ({userId, orderId}) => {
 
 const getAllOrdersForAdmin = async() => {
     try {
+        //connect redis for cache
+        const redisClient = redis.connectToRedis();
+        const cachedReviews = await redisClient.get(`orders:orderAdmin`); 
+        if (cachedReviews) {
+            console.log('Returning cached reviews from Redis');
+            const res = JSON.parse(cachedReviews);
+            return {data: res}
+        }
+
         const select = helper.CustomResponse.OrderResponse();
         const data = await prisma.order.findMany({
             select
         });
+        await redisClient.set(`orders:orderAdmin`, JSON.stringify(data), 'EX', 3600);
         return {data}
 
     } catch(err) {
