@@ -152,7 +152,6 @@ const logout = async (user, res) => {
 const sendOTP = async ({email}) => {
     try {
         const otp = Math.floor(Math.random() * 9000) + 1000;
-        console.log(otp)
         const OTPSend = await prisma.oTP.create({
             data: {
                 user_email: email,
@@ -165,6 +164,22 @@ const sendOTP = async ({email}) => {
         return {data: OTPSend.otp_value}
 
     } catch(err) {
+        throw err
+    }
+}
+
+const reSendOTP = async({email}) => {
+    try {
+        await prisma.oTP.delete({
+            where: {
+                user_email: email
+            }
+        })
+
+        const {data} = await sendOTP({email});
+
+    return {data}
+    } catch (err) {
         throw err
     }
 }
@@ -212,5 +227,6 @@ module.exports = {
     updateUserById,
     logout,
     sendOTP,
-    LoginWithGoogleService
+    LoginWithGoogleService,
+    reSendOTP
 }

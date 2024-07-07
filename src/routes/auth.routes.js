@@ -6,7 +6,8 @@ const {
     login,
     logout,
     sendOTP,
-    LoginWithGoogle
+    LoginWithGoogle,
+    reSendOTP
 } = require('../controllers/auth.controller')
 
 const  {
@@ -19,5 +20,6 @@ router.post('/login', login)
 router.delete('/logout', authenticateUser, logout)
 router.post('/otp', sendOTP)
 router.post('/gglogin', LoginWithGoogle)
+router.post('/resendOTP', reSendOTP)
 
 module.exports = router     
